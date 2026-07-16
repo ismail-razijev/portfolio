@@ -3,3 +3,4 @@ Je suis étudiant en 2e année de gestion des systèmes d'information et dévelo
 En parallèle de mes études, je suis fondateur et gérant de Mirasia, un restaurant à Verviers proposant une cuisine d'Asie centrale et du Caucase (ouïghoure, kazakhe, ouzbèke, tchétchène, russe, géorgienne). Cette double expérience m'a permis de développer des compétences concrètes en gestion de projet, création de sites web, et mise en place d'outils digitaux pour une petite entreprise — du site vitrine à la stratégie SEO, en passant par l'intégration d'outils de gestion.
 Je m'intéresse particulièrement à l'application pratique de l'intelligence artificielle dans le développement et la gestion d'entreprise, que ce soit pour accélérer la production de code, structurer des projets, ou optimiser des processus métier.
 À travers mes projets, je cherche à allier rigueur technique et sens pratique, avec une approche orientée résultats.
+
