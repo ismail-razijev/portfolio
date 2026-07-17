@@ -11,3 +11,7 @@ Analyseur de comptes-rendus de réunion propulsé par l'API Claude. Une transcri
 Stack : Python, API Anthropic, Streamlit.
 🔗 [Démo en ligne](https://portfolio-7q2shyofrzputy8ltgnpmw.streamlit.app)
 
+### [Mirasia Gestion](./mirasia-gestion)
+Application de gestion pour le restaurant Mirasia : suivi du stock des plats surgelés, planning de préparation, dashboard de synthèse.
+Stack : Node.js, Express, PostgreSQL.
+

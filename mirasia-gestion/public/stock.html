@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mirasia Gestion - Stock</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-page="stock.html">
+  <header class="topbar">
+    <h1>🍽️ Mirasia Gestion</h1>
+  </header>
+  <main>
+    <div class="card">
+      <h2>Ajouter une entrée de stock</h2>
+      <form class="inline-form" id="form-stock">
+        <label>Plat
+          <select name="id_plat" id="select-plat" required></select>
+        </label>
+        <label>Quantité
+          <input type="number" name="quantite" min="0" value="0" required />
+        </label>
+        <label>Seuil d'alerte
+          <input type="number" name="seuil_alerte" min="0" value="5" required />
+        </label>
+        <label>Date de préparation
+          <input type="date" name="date_preparation" required />
+        </label>
+        <label>Date de péremption
+          <input type="date" name="date_peremption" />
+        </label>
+        <button type="submit">Ajouter</button>
+      </form>
+      <p class="error-msg" id="error-stock" hidden></p>
+    </div>
+
+    <div class="card">
+      <h2>Stock actuel</h2>
+      <table id="table-stock">
+        <thead>
+          <tr><th>Plat</th><th>Quantité</th><th>Seuil</th><th>Préparé le</th><th>Péremption</th><th></th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </main>
+  <script src="nav.js"></script>
+  <script src="stock.js"></script>
+</body>
+</html>

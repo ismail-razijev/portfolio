@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mirasia Gestion - Plats & cuisines</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-page="plats.html">
+  <header class="topbar">
+    <h1>🍽️ Mirasia Gestion</h1>
+  </header>
+  <main>
+    <div class="card">
+      <h2>Cuisines</h2>
+      <form class="inline-form" id="form-cuisine">
+        <label>Nom
+          <input type="text" name="nom" required placeholder="Ex: Géorgien" />
+        </label>
+        <button type="submit">Ajouter</button>
+      </form>
+      <p class="error-msg" id="error-cuisine" hidden></p>
+      <table id="table-cuisines">
+        <thead><tr><th>Nom</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Plats</h2>
+      <form class="inline-form" id="form-plat">
+        <label>Nom
+          <input type="text" name="nom" required placeholder="Ex: Manti" />
+        </label>
+        <label>Cuisine
+          <select name="id_cuisine" id="select-cuisine"></select>
+        </label>
+        <label>Prix (€)
+          <input type="number" name="prix" step="0.01" min="0" />
+        </label>
+        <button type="submit">Ajouter</button>
+      </form>
+      <p class="error-msg" id="error-plat" hidden></p>
+      <table id="table-plats">
+        <thead><tr><th>Nom</th><th>Cuisine</th><th>Prix</th><th>Actif</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </main>
+  <script src="nav.js"></script>
+  <script src="plats.js"></script>
+</body>
+</html>

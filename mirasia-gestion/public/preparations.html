@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mirasia Gestion - Planning de préparation</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-page="preparations.html">
+  <header class="topbar">
+    <h1>🍽️ Mirasia Gestion</h1>
+  </header>
+  <main>
+    <div class="card">
+      <h2>Planifier une préparation</h2>
+      <form class="inline-form" id="form-prep">
+        <label>Plat
+          <select name="id_plat" id="select-plat" required></select>
+        </label>
+        <label>Quantité prévue
+          <input type="number" name="quantite_prevue" min="1" required />
+        </label>
+        <label>Date prévue
+          <input type="date" name="date_prevue" required />
+        </label>
+        <button type="submit">Planifier</button>
+      </form>
+      <p class="error-msg" id="error-prep" hidden></p>
+    </div>
+
+    <div class="card">
+      <h2>Planning</h2>
+      <table id="table-preps">
+        <thead>
+          <tr><th>Plat</th><th>Quantité prévue</th><th>Date</th><th>Statut</th><th></th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </main>
+  <script src="nav.js"></script>
+  <script src="preparations.js"></script>
+</body>
+</html>

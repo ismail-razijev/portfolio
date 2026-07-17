@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mirasia Gestion - Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-page="index.html">
+  <header class="topbar">
+    <h1>🍽️ Mirasia Gestion</h1>
+  </header>
+  <main>
+    <div class="stats" id="stats"></div>
+
+    <div class="card">
+      <h2>⚠️ Stock sous le seuil d'alerte</h2>
+      <table id="table-stock-bas">
+        <thead>
+          <tr><th>Plat</th><th>Quantité</th><th>Seuil</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <p class="empty" id="empty-stock-bas" hidden>Aucune alerte de stock.</p>
+    </div>
+
+    <div class="card">
+      <h2>📅 Préparations prévues aujourd'hui</h2>
+      <table id="table-preps-jour">
+        <thead>
+          <tr><th>Plat</th><th>Quantité prévue</th><th>Statut</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <p class="empty" id="empty-preps-jour" hidden>Aucune préparation prévue aujourd'hui.</p>
+    </div>
+  </main>
+  <script src="nav.js"></script>
+  <script src="dashboard.js"></script>
+</body>
+</html>
