@@ -2,6 +2,8 @@
 
 Analyseur de comptes-rendus de réunion propulsé par l'IA. On colle une transcription brute, l'application génère un CR structuré (résumé, participants, décisions, actions à suivre) via l'API Claude.
 
+🔗 **Démo en ligne** : [portfolio-7q2shyofrzputy8ltgnpmw.streamlit.app](https://portfolio-7q2shyofrzputy8ltgnpmw.streamlit.app) (protégée par un code d'accès, disponible sur demande)
+
 ## Pourquoi ce projet
 
 Dans un rôle de chef de projet, la rédaction de CR est une tâche fréquente et chronophage. Ce projet automatise cette rédaction pour se concentrer sur l'essentiel : les décisions et le suivi des actions.

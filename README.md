@@ -4,3 +4,10 @@ En parallèle de mes études, je suis fondateur et gérant de Mirasia, un restau
 Je m'intéresse particulièrement à l'application pratique de l'intelligence artificielle dans le développement et la gestion d'entreprise, que ce soit pour accélérer la production de code, structurer des projets, ou optimiser des processus métier.
 À travers mes projets, je cherche à allier rigueur technique et sens pratique, avec une approche orientée résultats.
 
+## Projets
+
+### [Meeting Notes AI](./meeting-notes-ai)
+Analyseur de comptes-rendus de réunion propulsé par l'API Claude. Une transcription brute en entrée, un CR structuré (résumé, décisions, actions à suivre) en sortie.
+Stack : Python, API Anthropic, Streamlit.
+🔗 [Démo en ligne](https://portfolio-7q2shyofrzputy8ltgnpmw.streamlit.app)
+
