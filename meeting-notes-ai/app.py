@@ -1,9 +1,31 @@
+import os
+
 import anthropic
 import streamlit as st
+from dotenv import load_dotenv
 
 from cr_analyzer import generate_cr
 
+load_dotenv()
+
 st.set_page_config(page_title="Meeting Notes AI", page_icon="📝")
+
+ACCESS_CODE = os.environ.get("APP_ACCESS_CODE")
+
+if ACCESS_CODE:
+    if "authorized" not in st.session_state:
+        st.session_state.authorized = False
+
+    if not st.session_state.authorized:
+        st.title("📝 Meeting Notes AI")
+        code_input = st.text_input("Code d'accès", type="password")
+        if code_input:
+            if code_input == ACCESS_CODE:
+                st.session_state.authorized = True
+                st.rerun()
+            else:
+                st.error("Code incorrect.")
+        st.stop()
 
 st.title("📝 Meeting Notes AI")
 st.caption("Colle la transcription d'une réunion, l'IA génère le compte-rendu structuré.")
