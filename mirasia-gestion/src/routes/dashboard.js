@@ -1,5 +1,6 @@
 const express = require("express");
 const pool = require("../db/pool");
+const { handleDbError } = require("../utils/errors");
 
 const router = express.Router();
 
@@ -34,7 +35,7 @@ router.get("/", async (req, res) => {
       preparations_du_jour: preparationsDuJour.rows,
     });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    handleDbError(err, res);
   }
 });
 

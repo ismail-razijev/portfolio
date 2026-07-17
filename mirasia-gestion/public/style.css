@@ -107,6 +107,10 @@ tr.alerte td {
   background: #fdecea;
 }
 
+tr.retard td {
+  background: #fff3cd;
+}
+
 form.inline-form {
   display: flex;
   flex-wrap: wrap;

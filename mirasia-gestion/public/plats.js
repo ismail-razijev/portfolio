@@ -1,4 +1,6 @@
 let cuisines = [];
+let plats = [];
+let editingPlatId = null;
 
 async function loadCuisines() {
   const res = await fetch("/api/cuisines");
@@ -13,6 +15,7 @@ async function loadCuisines() {
       </tr>`
     )
     .join("");
+  document.getElementById("empty-cuisines").hidden = cuisines.length > 0;
 
   const select = document.getElementById("select-cuisine");
   select.innerHTML =
@@ -20,25 +23,80 @@ async function loadCuisines() {
     cuisines.map((c) => `<option value="${c.id}">${c.nom}</option>`).join("");
 }
 
+function cuisineOptions(selectedId) {
+  return (
+    `<option value="">-- aucune --</option>` +
+    cuisines
+      .map(
+        (c) =>
+          `<option value="${c.id}" ${c.id === selectedId ? "selected" : ""}>${c.nom}</option>`
+      )
+      .join("")
+  );
+}
+
+function renderPlatRow(p) {
+  if (p.id === editingPlatId) {
+    return `<tr>
+      <td><input type="text" id="edit-nom-${p.id}" value="${p.nom}" /></td>
+      <td><select id="edit-cuisine-${p.id}">${cuisineOptions(p.id_cuisine)}</select></td>
+      <td><input type="number" id="edit-prix-${p.id}" step="0.01" min="0" value="${p.prix ?? ""}" style="width:80px" /></td>
+      <td>${p.actif ? "Oui" : "Non"}</td>
+      <td>
+        <button class="small" onclick="savePlat(${p.id})">Enregistrer</button>
+        <button class="small" onclick="cancelEditPlat()">Annuler</button>
+      </td>
+    </tr>`;
+  }
+  return `<tr>
+    <td>${p.nom}</td>
+    <td>${p.cuisine_nom || "-"}</td>
+    <td>${p.prix !== null ? p.prix + " €" : "-"}</td>
+    <td>${p.actif ? "Oui" : "Non"}</td>
+    <td>
+      <button class="small" onclick="startEditPlat(${p.id})">Modifier</button>
+      <button class="small" onclick="togglePlat(${p.id}, ${p.actif})">${p.actif ? "Désactiver" : "Activer"}</button>
+      <button class="danger small" onclick="deletePlat(${p.id})">Supprimer</button>
+    </td>
+  </tr>`;
+}
+
 async function loadPlats() {
   const res = await fetch("/api/plats");
-  const plats = await res.json();
+  plats = await res.json();
 
   const body = document.querySelector("#table-plats tbody");
-  body.innerHTML = plats
-    .map(
-      (p) => `<tr>
-        <td>${p.nom}</td>
-        <td>${p.cuisine_nom || "-"}</td>
-        <td>${p.prix !== null ? p.prix + " €" : "-"}</td>
-        <td>${p.actif ? "Oui" : "Non"}</td>
-        <td>
-          <button class="small" onclick="togglePlat(${p.id}, ${p.actif})">${p.actif ? "Désactiver" : "Activer"}</button>
-          <button class="danger small" onclick="deletePlat(${p.id})">Supprimer</button>
-        </td>
-      </tr>`
-    )
-    .join("");
+  body.innerHTML = plats.map(renderPlatRow).join("");
+  document.getElementById("empty-plats").hidden = plats.length > 0;
+}
+
+function startEditPlat(id) {
+  editingPlatId = id;
+  loadPlats();
+}
+
+function cancelEditPlat() {
+  editingPlatId = null;
+  loadPlats();
+}
+
+async function savePlat(id) {
+  const nom = document.getElementById(`edit-nom-${id}`).value.trim();
+  const id_cuisine = document.getElementById(`edit-cuisine-${id}`).value || null;
+  const prix = document.getElementById(`edit-prix-${id}`).value || null;
+
+  const res = await fetch(`/api/plats/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ nom, id_cuisine, prix }),
+  });
+  if (!res.ok) {
+    const data = await res.json();
+    alert(data.message);
+    return;
+  }
+  editingPlatId = null;
+  await loadPlats();
 }
 
 document.getElementById("form-cuisine").addEventListener("submit", async (e) => {
@@ -84,23 +142,38 @@ document.getElementById("form-plat").addEventListener("submit", async (e) => {
 });
 
 async function togglePlat(id, actif) {
-  await fetch(`/api/plats/${id}`, {
+  const res = await fetch(`/api/plats/${id}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ actif: !actif }),
   });
+  if (!res.ok) {
+    const data = await res.json();
+    alert(data.message);
+    return;
+  }
   await loadPlats();
 }
 
 async function deletePlat(id) {
   if (!confirm("Supprimer ce plat ?")) return;
-  await fetch(`/api/plats/${id}`, { method: "DELETE" });
+  const res = await fetch(`/api/plats/${id}`, { method: "DELETE" });
+  if (!res.ok) {
+    const data = await res.json();
+    alert(data.message);
+    return;
+  }
   await loadPlats();
 }
 
 async function deleteCuisine(id) {
   if (!confirm("Supprimer cette cuisine ?")) return;
-  await fetch(`/api/cuisines/${id}`, { method: "DELETE" });
+  const res = await fetch(`/api/cuisines/${id}`, { method: "DELETE" });
+  if (!res.ok) {
+    const data = await res.json();
+    alert(data.message);
+    return;
+  }
   await loadCuisines();
   await loadPlats();
 }

@@ -1,5 +1,6 @@
 const express = require("express");
 const pool = require("../db/pool");
+const { handleDbError } = require("../utils/errors");
 
 const router = express.Router();
 
@@ -16,7 +17,7 @@ router.get("/", async (req, res) => {
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    handleDbError(err, res);
   }
 });
 
@@ -36,7 +37,7 @@ router.post("/", async (req, res) => {
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    handleDbError(err, res);
   }
 });
 
@@ -57,7 +58,23 @@ router.patch("/:id", async (req, res) => {
     }
     res.json(result.rows[0]);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    handleDbError(err, res);
+  }
+});
+
+router.get("/mouvements/recentes", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT stock_mouvements.*, plats.nom AS plat_nom
+      FROM stock_mouvements
+      JOIN stock ON stock_mouvements.id_stock = stock.id
+      JOIN plats ON stock.id_plat = plats.id
+      ORDER BY stock_mouvements.date_mouvement DESC
+      LIMIT 50
+    `);
+    res.json(result.rows);
+  } catch (err) {
+    handleDbError(err, res);
   }
 });
 
@@ -72,7 +89,7 @@ router.delete("/:id", async (req, res) => {
     }
     res.status(204).send();
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    handleDbError(err, res);
   }
 });
 

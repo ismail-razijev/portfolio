@@ -12,6 +12,12 @@ function formatDate(iso) {
   return new Date(iso).toLocaleDateString("fr-BE");
 }
 
+function estEnRetard(p) {
+  if (p.statut === "terminee") return false;
+  const aujourdhui = new Date().toISOString().slice(0, 10);
+  return p.date_prevue.slice(0, 10) < aujourdhui;
+}
+
 const STATUTS = ["prevue", "en_cours", "terminee"];
 
 async function loadPreparations() {
@@ -21,10 +27,10 @@ async function loadPreparations() {
   const body = document.querySelector("#table-preps tbody");
   body.innerHTML = preps
     .map(
-      (p) => `<tr>
+      (p) => `<tr class="${estEnRetard(p) ? "retard" : ""}">
         <td>${p.plat_nom}</td>
         <td>${p.quantite_prevue}</td>
-        <td>${formatDate(p.date_prevue)}</td>
+        <td>${formatDate(p.date_prevue)}${estEnRetard(p) ? " ⚠️ en retard" : ""}</td>
         <td>
           <select onchange="updateStatut(${p.id}, this.value)">
             ${STATUTS.map(
@@ -36,6 +42,7 @@ async function loadPreparations() {
       </tr>`
     )
     .join("");
+  document.getElementById("empty-preps").hidden = preps.length > 0;
 }
 
 document.getElementById("form-prep").addEventListener("submit", async (e) => {
@@ -64,17 +71,26 @@ document.getElementById("form-prep").addEventListener("submit", async (e) => {
 });
 
 async function updateStatut(id, statut) {
-  await fetch(`/api/preparations/${id}`, {
+  const res = await fetch(`/api/preparations/${id}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ statut }),
   });
+  if (!res.ok) {
+    const data = await res.json();
+    alert(data.message);
+  }
   await loadPreparations();
 }
 
 async function deletePrep(id) {
   if (!confirm("Supprimer cette préparation ?")) return;
-  await fetch(`/api/preparations/${id}`, { method: "DELETE" });
+  const res = await fetch(`/api/preparations/${id}`, { method: "DELETE" });
+  if (!res.ok) {
+    const data = await res.json();
+    alert(data.message);
+    return;
+  }
   await loadPreparations();
 }
 

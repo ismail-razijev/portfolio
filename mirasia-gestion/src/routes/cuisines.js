@@ -1,5 +1,6 @@
 const express = require("express");
 const pool = require("../db/pool");
+const { handleDbError } = require("../utils/errors");
 
 const router = express.Router();
 
@@ -8,7 +9,7 @@ router.get("/", async (req, res) => {
     const result = await pool.query("SELECT * FROM cuisines ORDER BY nom");
     res.json(result.rows);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    handleDbError(err, res);
   }
 });
 
@@ -24,7 +25,7 @@ router.post("/", async (req, res) => {
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    handleDbError(err, res);
   }
 });
 
@@ -40,7 +41,7 @@ router.patch("/:id", async (req, res) => {
     }
     res.json(result.rows[0]);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    handleDbError(err, res);
   }
 });
 
@@ -55,7 +56,7 @@ router.delete("/:id", async (req, res) => {
     }
     res.status(204).send();
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    handleDbError(err, res);
   }
 });
 

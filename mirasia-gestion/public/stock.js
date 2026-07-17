@@ -12,6 +12,11 @@ function formatDate(iso) {
   return new Date(iso).toLocaleDateString("fr-BE");
 }
 
+function formatDateTime(iso) {
+  if (!iso) return "-";
+  return new Date(iso).toLocaleString("fr-BE");
+}
+
 async function loadStock() {
   const res = await fetch("/api/stock");
   const stock = await res.json();
@@ -33,6 +38,25 @@ async function loadStock() {
       </tr>`;
     })
     .join("");
+  document.getElementById("empty-stock").hidden = stock.length > 0;
+}
+
+async function loadMouvements() {
+  const res = await fetch("/api/stock/mouvements/recentes");
+  const mouvements = await res.json();
+
+  const body = document.querySelector("#table-mouvements tbody");
+  body.innerHTML = mouvements
+    .map(
+      (m) => `<tr>
+        <td>${m.plat_nom}</td>
+        <td>${m.ancienne_quantite}</td>
+        <td>${m.nouvelle_quantite}</td>
+        <td>${formatDateTime(m.date_mouvement)}</td>
+      </tr>`
+    )
+    .join("");
+  document.getElementById("empty-mouvements").hidden = mouvements.length > 0;
 }
 
 document.getElementById("form-stock").addEventListener("submit", async (e) => {
@@ -63,21 +87,32 @@ document.getElementById("form-stock").addEventListener("submit", async (e) => {
 });
 
 async function updateQuantite(id, quantite) {
-  await fetch(`/api/stock/${id}`, {
+  const res = await fetch(`/api/stock/${id}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ quantite }),
   });
+  if (!res.ok) {
+    const data = await res.json();
+    alert(data.message);
+  }
   await loadStock();
+  await loadMouvements();
 }
 
 async function deleteStock(id) {
   if (!confirm("Supprimer cette ligne de stock ?")) return;
-  await fetch(`/api/stock/${id}`, { method: "DELETE" });
+  const res = await fetch(`/api/stock/${id}`, { method: "DELETE" });
+  if (!res.ok) {
+    const data = await res.json();
+    alert(data.message);
+    return;
+  }
   await loadStock();
 }
 
 (async () => {
   await loadPlatsSelect();
   await loadStock();
+  await loadMouvements();
 })();

@@ -12,7 +12,8 @@ C'est aussi un projet portfolio pensé pour réutiliser des compétences en base
 
 - **Gestion des cuisines et des plats** : créer/activer/désactiver des plats, les rattacher à une cuisine
 - **Suivi du stock** : quantité disponible par plat, seuil d'alerte, dates de préparation/péremption
-- **Planning de préparation** : quoi préparer, quelle quantité, pour quand, avec un statut (prévue / en cours / terminée)
+- **Historique des mouvements de stock** : chaque changement de quantité est tracé automatiquement (via un trigger PL/pgSQL), consultable sur la page Stock
+- **Planning de préparation** : quoi préparer, quelle quantité, pour quand, avec un statut (prévue / en cours / terminée), les préparations en retard sont mises en évidence
 - **Dashboard** : vue d'ensemble (plats actifs, alertes de stock, préparations en attente), stock sous le seuil d'alerte, préparations prévues du jour
 
 ## Stack technique
@@ -29,13 +30,16 @@ mirasia-gestion/
 │   ├── index.js           # Point d'entrée : serveur Express, montage des routes
 │   ├── db/
 │   │   ├── pool.js        # Connexion PostgreSQL
-│   │   └── schema.sql     # Schéma des tables (cuisines, plats, stock, preparations)
-│   └── routes/
-│       ├── cuisines.js    # CRUD cuisines
-│       ├── plats.js       # CRUD plats
-│       ├── stock.js       # CRUD stock
-│       ├── preparations.js # CRUD planning de préparation
-│       └── dashboard.js   # Statistiques agrégées
+│   │   ├── schema.sql     # Schéma complet (tables, contraintes, trigger)
+│   │   └── migration_v1_1.sql # Contraintes CHECK + historique des mouvements + trigger
+│   ├── routes/
+│   │   ├── cuisines.js    # CRUD cuisines
+│   │   ├── plats.js       # CRUD plats
+│   │   ├── stock.js       # CRUD stock + historique des mouvements
+│   │   ├── preparations.js # CRUD planning de préparation
+│   │   └── dashboard.js   # Statistiques agrégées
+│   └── utils/
+│       └── errors.js      # Traduction des erreurs PostgreSQL en réponses HTTP claires
 └── public/                 # Frontend (servi statiquement par Express)
     ├── index.html          # Dashboard
     ├── plats.html          # Gestion des plats & cuisines
@@ -51,7 +55,12 @@ cuisines (id, nom)
 plats (id, nom, id_cuisine → cuisines, prix, actif)
 stock (id, id_plat → plats, quantite, seuil_alerte, date_preparation, date_peremption)
 preparations (id, id_plat → plats, quantite_prevue, date_prevue, statut)
+stock_mouvements (id, id_stock → stock, ancienne_quantite, nouvelle_quantite, date_mouvement)
 ```
+
+Contraintes d'intégrité : quantités et prix ne peuvent pas être négatifs (`CHECK`), statuts limités à un ensemble de valeurs valides.
+
+**Trigger PL/pgSQL** : `trg_log_mouvement_stock` s'exécute automatiquement après chaque `UPDATE` sur `stock` et enregistre l'ancienne et la nouvelle quantité dans `stock_mouvements`, sans intervention du code applicatif.
 
 ## Installation
 
@@ -63,7 +72,7 @@ cd portfolio/mirasia-gestion
 npm install
 ```
 
-Créer la base de données et y appliquer le schéma :
+Créer la base de données et y appliquer le schéma (déjà à jour avec les contraintes et le trigger) :
 
 ```bash
 psql -U postgres -c "CREATE DATABASE mirasia;"
@@ -92,9 +101,10 @@ L'application est accessible sur `http://localhost:3000`.
 ## Roadmap
 
 - **V1** : stock, planning de préparation, dashboard *(fonctionnelle)*
-- **V2** : trigger PL/pgSQL pour générer automatiquement une alerte quand le stock passe sous le seuil, gestion multi-utilisateurs (toi + employés)
+- **V1.1** : contraintes d'intégrité (CHECK), historique des mouvements de stock (trigger PL/pgSQL), gestion d'erreurs centralisée, édition des plats *(fonctionnelle)*
+- **V2** : alerte automatique (email/notification) quand le stock passe sous le seuil, gestion multi-utilisateurs (toi + employés)
 - **V3** : réservations, module de caisse
 
 ## Statut
 
-✅ V1 fonctionnelle
+✅ V1.1 fonctionnelle
