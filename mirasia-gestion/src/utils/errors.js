@@ -15,6 +15,10 @@ function handleDbError(err, res) {
       message: "Valeur invalide (ex: quantité, prix ou seuil négatif).",
     });
   }
+  if (err.code === "P0001") {
+    // RAISE EXCEPTION explicite depuis une fonction PL/pgSQL (message déjà en français, déjà clair)
+    return res.status(400).json({ message: err.message });
+  }
   console.error(err);
   return res.status(500).json({ message: "Erreur serveur." });
 }

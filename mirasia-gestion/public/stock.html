@@ -36,6 +36,10 @@
 
     <div class="card">
       <h2>Stock actuel</h2>
+      <label style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.8rem; font-size:0.9rem;">
+        <input type="checkbox" id="filtre-alertes-seulement" />
+        Afficher uniquement les alertes
+      </label>
       <table id="table-stock">
         <thead>
           <tr><th>Plat</th><th>Quantité</th><th>Seuil</th><th>Préparé le</th><th>Péremption</th><th></th></tr>
@@ -56,6 +60,7 @@
       <p class="empty" id="empty-mouvements" hidden>Aucun mouvement de stock enregistré pour l'instant.</p>
     </div>
   </main>
+  <script src="guard.js"></script>
   <script src="nav.js"></script>
   <script src="stock.js"></script>
 </body>

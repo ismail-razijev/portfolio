@@ -30,6 +30,20 @@
 
     <div class="card">
       <h2>Planning</h2>
+      <form class="inline-form" id="form-filtres-preps">
+        <label>Statut
+          <select id="filtre-statut">
+            <option value="">Tous</option>
+            <option value="prevue">prevue</option>
+            <option value="en_cours">en_cours</option>
+            <option value="terminee">terminee</option>
+          </select>
+        </label>
+        <label style="flex-direction:row; align-items:center; gap:0.4rem;">
+          <input type="checkbox" id="filtre-retard-seulement" />
+          En retard uniquement
+        </label>
+      </form>
       <table id="table-preps">
         <thead>
           <tr><th>Plat</th><th>Quantité prévue</th><th>Date</th><th>Statut</th><th></th></tr>
@@ -39,6 +53,7 @@
       <p class="empty" id="empty-preps" hidden>Aucune préparation planifiée pour l'instant.</p>
     </div>
   </main>
+  <script src="guard.js"></script>
   <script src="nav.js"></script>
   <script src="preparations.js"></script>
 </body>

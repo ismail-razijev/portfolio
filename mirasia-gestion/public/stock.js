@@ -17,12 +17,16 @@ function formatDateTime(iso) {
   return new Date(iso).toLocaleString("fr-BE");
 }
 
-async function loadStock() {
-  const res = await fetch("/api/stock");
-  const stock = await res.json();
+let stockActuel = [];
+
+function renderStockTable() {
+  const alertesSeulement = document.getElementById("filtre-alertes-seulement").checked;
+  const visibles = alertesSeulement
+    ? stockActuel.filter((s) => s.quantite <= s.seuil_alerte)
+    : stockActuel;
 
   const body = document.querySelector("#table-stock tbody");
-  body.innerHTML = stock
+  body.innerHTML = visibles
     .map((s) => {
       const alerte = s.quantite <= s.seuil_alerte;
       return `<tr class="${alerte ? "alerte" : ""}">
@@ -38,8 +42,18 @@ async function loadStock() {
       </tr>`;
     })
     .join("");
-  document.getElementById("empty-stock").hidden = stock.length > 0;
+  document.getElementById("empty-stock").hidden = visibles.length > 0;
 }
+
+async function loadStock() {
+  const res = await fetch("/api/stock");
+  stockActuel = await res.json();
+  renderStockTable();
+}
+
+document
+  .getElementById("filtre-alertes-seulement")
+  .addEventListener("change", renderStockTable);
 
 async function loadMouvements() {
   const res = await fetch("/api/stock/mouvements/recentes");

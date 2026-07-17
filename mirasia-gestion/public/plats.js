@@ -21,6 +21,21 @@ async function loadCuisines() {
   select.innerHTML =
     `<option value="">-- aucune --</option>` +
     cuisines.map((c) => `<option value="${c.id}">${c.nom}</option>`).join("");
+
+  const filtre = document.getElementById("filtre-cuisine");
+  filtre.innerHTML =
+    `<option value="">Toutes</option>` +
+    cuisines.map((c) => `<option value="${c.id}">${c.nom}</option>`).join("");
+}
+
+function filteredPlats() {
+  const recherche = document.getElementById("filtre-recherche").value.trim().toLowerCase();
+  const cuisineId = document.getElementById("filtre-cuisine").value;
+  return plats.filter((p) => {
+    const matchNom = !recherche || p.nom.toLowerCase().includes(recherche);
+    const matchCuisine = !cuisineId || String(p.id_cuisine) === cuisineId;
+    return matchNom && matchCuisine;
+  });
 }
 
 function cuisineOptions(selectedId) {
@@ -61,14 +76,22 @@ function renderPlatRow(p) {
   </tr>`;
 }
 
+function renderPlatsTable() {
+  const visibles = filteredPlats();
+  const body = document.querySelector("#table-plats tbody");
+  body.innerHTML = visibles.map(renderPlatRow).join("");
+  document.getElementById("empty-plats").hidden = visibles.length > 0;
+}
+
 async function loadPlats() {
   const res = await fetch("/api/plats");
   plats = await res.json();
-
-  const body = document.querySelector("#table-plats tbody");
-  body.innerHTML = plats.map(renderPlatRow).join("");
-  document.getElementById("empty-plats").hidden = plats.length > 0;
+  renderPlatsTable();
 }
+
+document.getElementById("filtre-recherche").addEventListener("input", renderPlatsTable);
+document.getElementById("filtre-cuisine").addEventListener("change", renderPlatsTable);
+document.getElementById("form-filtres-plats").addEventListener("submit", (e) => e.preventDefault());
 
 function startEditPlat(id) {
   editingPlatId = id;

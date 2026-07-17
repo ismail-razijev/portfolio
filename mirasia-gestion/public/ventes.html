@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mirasia Gestion - Ventes</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-page="ventes.html">
+  <header class="topbar">
+    <h1>🍽️ Mirasia Gestion</h1>
+  </header>
+  <main>
+    <div class="card">
+      <h2>Enregistrer une vente</h2>
+      <form class="inline-form" id="form-vente">
+        <label>Plat
+          <select name="id_plat" id="select-plat" required></select>
+        </label>
+        <label>Quantité
+          <input type="number" name="quantite" min="1" value="1" required />
+        </label>
+        <button type="submit">Vendre</button>
+      </form>
+      <p class="error-msg" id="error-vente" hidden></p>
+    </div>
+
+    <div class="card">
+      <h2>Dernières ventes</h2>
+      <table id="table-ventes">
+        <thead>
+          <tr><th>Plat</th><th>Quantité</th><th>Prix unitaire</th><th>Total</th><th>Date</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <p class="empty" id="empty-ventes" hidden>Aucune vente enregistrée pour l'instant.</p>
+    </div>
+  </main>
+  <script src="guard.js"></script>
+  <script src="nav.js"></script>
+  <script src="ventes.js"></script>
+</body>
+</html>

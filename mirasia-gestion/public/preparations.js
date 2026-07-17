@@ -19,13 +19,20 @@ function estEnRetard(p) {
 }
 
 const STATUTS = ["prevue", "en_cours", "terminee"];
+let preparationsActuelles = [];
 
-async function loadPreparations() {
-  const res = await fetch("/api/preparations");
-  const preps = await res.json();
+function renderPreparationsTable() {
+  const statutFiltre = document.getElementById("filtre-statut").value;
+  const retardSeulement = document.getElementById("filtre-retard-seulement").checked;
+
+  const visibles = preparationsActuelles.filter((p) => {
+    const matchStatut = !statutFiltre || p.statut === statutFiltre;
+    const matchRetard = !retardSeulement || estEnRetard(p);
+    return matchStatut && matchRetard;
+  });
 
   const body = document.querySelector("#table-preps tbody");
-  body.innerHTML = preps
+  body.innerHTML = visibles
     .map(
       (p) => `<tr class="${estEnRetard(p) ? "retard" : ""}">
         <td>${p.plat_nom}</td>
@@ -42,8 +49,19 @@ async function loadPreparations() {
       </tr>`
     )
     .join("");
-  document.getElementById("empty-preps").hidden = preps.length > 0;
+  document.getElementById("empty-preps").hidden = visibles.length > 0;
 }
+
+async function loadPreparations() {
+  const res = await fetch("/api/preparations");
+  preparationsActuelles = await res.json();
+  renderPreparationsTable();
+}
+
+document.getElementById("filtre-statut").addEventListener("change", renderPreparationsTable);
+document
+  .getElementById("filtre-retard-seulement")
+  .addEventListener("change", renderPreparationsTable);
 
 document.getElementById("form-prep").addEventListener("submit", async (e) => {
   e.preventDefault();

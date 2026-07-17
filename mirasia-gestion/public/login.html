@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mirasia Gestion - Connexion</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+    .login-card { width: 100%; max-width: 320px; }
+    .login-card form { display: flex; flex-direction: column; gap: 0.8rem; }
+    .login-card label { display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.85rem; color: var(--text-muted); }
+  </style>
+</head>
+<body>
+  <div class="card login-card">
+    <h2>🍽️ Mirasia Gestion</h2>
+    <form id="form-login">
+      <label>Identifiant
+        <input type="text" name="username" required autofocus />
+      </label>
+      <label>Mot de passe
+        <input type="password" name="password" required />
+      </label>
+      <button type="submit">Se connecter</button>
+    </form>
+    <p class="error-msg" id="error-login" hidden></p>
+  </div>
+  <script src="login.js"></script>
+</body>
+</html>

@@ -29,6 +29,14 @@
 
     <div class="card">
       <h2>Plats</h2>
+      <form class="inline-form" id="form-filtres-plats">
+        <label>Recherche
+          <input type="text" id="filtre-recherche" placeholder="Nom du plat..." />
+        </label>
+        <label>Cuisine
+          <select id="filtre-cuisine"><option value="">Toutes</option></select>
+        </label>
+      </form>
       <form class="inline-form" id="form-plat">
         <label>Nom
           <input type="text" name="nom" required placeholder="Ex: Manti" />
@@ -49,6 +57,7 @@
       <p class="empty" id="empty-plats" hidden>Aucun plat pour l'instant.</p>
     </div>
   </main>
+  <script src="guard.js"></script>
   <script src="nav.js"></script>
   <script src="plats.js"></script>
 </body>

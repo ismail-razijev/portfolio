@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mirasia Gestion - Statistiques</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .bar-row { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem; }
+    .bar-label { width: 140px; font-size: 0.85rem; flex-shrink: 0; }
+    .bar-track { flex: 1; background: var(--border); border-radius: 4px; overflow: hidden; height: 18px; }
+    .bar-fill { background: var(--primary); height: 100%; }
+    .bar-value { width: 90px; text-align: right; font-size: 0.8rem; color: var(--text-muted); flex-shrink: 0; }
+  </style>
+</head>
+<body data-page="statistiques.html">
+  <header class="topbar">
+    <h1>🍽️ Mirasia Gestion</h1>
+  </header>
+  <main>
+    <div class="stats" id="stats"></div>
+
+    <div class="card">
+      <h2>🏆 Top plats vendus</h2>
+      <div id="top-plats"></div>
+      <p class="empty" id="empty-top-plats" hidden>Aucune vente enregistrée pour l'instant.</p>
+    </div>
+
+    <div class="card">
+      <h2>📈 Chiffre d'affaires (14 derniers jours)</h2>
+      <div id="ventes-jour"></div>
+      <p class="empty" id="empty-ventes-jour" hidden>Aucune vente sur les 14 derniers jours.</p>
+    </div>
+  </main>
+  <script src="guard.js"></script>
+  <script src="nav.js"></script>
+  <script src="statistiques.js"></script>
+</body>
+</html>
