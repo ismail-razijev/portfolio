@@ -16,6 +16,12 @@ const preparationsRouter = require("./routes/preparations");
 const commandesRouter = require("./routes/commandes");
 const statistiquesRouter = require("./routes/statistiques");
 const dashboardRouter = require("./routes/dashboard");
+const categoriesRouter = require("./routes/categories");
+const variantesRouter = require("./routes/variantes");
+const menuRouter = require("./routes/menu");
+const tablesRouter = require("./routes/tables");
+const commandesClientRouter = require("./routes/commandesClient");
+const reservationsRouter = require("./routes/reservations");
 
 const app = express();
 
@@ -60,6 +66,17 @@ app.use("/api/preparations", requireAuth, preparationsRouter);
 app.use("/api/commandes", requireAuth, commandesRouter);
 app.use("/api/statistiques", requireAuth, statistiquesRouter);
 app.use("/api/dashboard", requireAuth, dashboardRouter);
+
+// Carte du restaurant, commande client, salle & réservations (V1.3).
+// commandesClientRouter et reservationsRouter appliquent requireAuth
+// route par route en interne (POST public, GET liste/PATCH réservés au staff) :
+// seul module de l'app où le même routeur sert du public et du staff.
+app.use("/api/categories", requireAuth, categoriesRouter);
+app.use("/api/variantes", requireAuth, variantesRouter);
+app.use("/api/menu", menuRouter);
+app.use("/api/tables", tablesRouter);
+app.use("/api/commandes-client", commandesClientRouter);
+app.use("/api/reservations", reservationsRouter);
 
 if (require.main === module) {
   const port = process.env.PORT || 3000;

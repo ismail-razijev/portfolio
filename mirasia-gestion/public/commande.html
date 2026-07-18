@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mirasia - Commander</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="commande.css" />
+</head>
+<body data-page="commande.html">
+  <header class="topbar">
+    <h1>🍽️ Mirasia - Commander</h1>
+  </header>
+  <main>
+    <div id="vue-commande">
+      <div class="card">
+        <h2>Votre commande</h2>
+        <form class="inline-form" id="form-mode">
+          <label>Type
+            <select id="select-mode">
+              <option value="a_emporter">À emporter</option>
+              <option value="sur_place">Sur place</option>
+            </select>
+          </label>
+          <label id="label-table" hidden>N° de table
+            <select id="select-table"></select>
+          </label>
+          <label>Nom
+            <input type="text" id="input-nom" placeholder="Optionnel" />
+          </label>
+          <label>Téléphone
+            <input type="tel" id="input-telephone" placeholder="Optionnel" />
+          </label>
+        </form>
+        <label class="filtre-vege">
+          <input type="checkbox" id="filtre-vegetarien" />
+          Afficher uniquement les plats végétariens
+        </label>
+      </div>
+
+      <div id="menu-categories"></div>
+
+      <div class="card panier" id="panier">
+        <h2>Panier</h2>
+        <p class="empty" id="panier-vide">Votre panier est vide.</p>
+        <ul id="panier-lignes"></ul>
+        <p class="panier-total">Total : <strong id="panier-total">0,00 €</strong></p>
+        <p class="error-msg" id="error-commande" hidden></p>
+        <button type="button" id="btn-commander">Valider la commande</button>
+      </div>
+    </div>
+
+    <div id="vue-confirmation" class="card" hidden>
+      <h2>Commande envoyée</h2>
+      <p>Numéro de commande : <strong id="conf-id"></strong></p>
+      <p>Total : <strong id="conf-total"></strong></p>
+      <p id="conf-jeudi" hidden></p>
+      <p>Statut : <span class="badge" id="conf-statut"></span></p>
+      <button type="button" id="btn-nouvelle-commande">Nouvelle commande</button>
+    </div>
+  </main>
+  <script src="commande.js"></script>
+</body>
+</html>

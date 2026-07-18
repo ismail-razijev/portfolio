@@ -169,6 +169,22 @@ button.small {
 .badge.en_cours { background: #cce5ff; color: #004085; }
 .badge.terminee { background: #d4edda; color: var(--ok); }
 
+/* Commandes client (recu -> en_preparation -> pret -> servi / annule) */
+.badge.recu { background: #fdecea; color: var(--danger); }
+.badge.en_preparation { background: #fff3cd; color: #856404; }
+.badge.pret { background: #d4edda; color: var(--ok); }
+.badge.servi { background: #e2e3e5; color: #383d41; }
+.badge.annule { background: #e2e3e5; color: #383d41; text-decoration: line-through; }
+
+/* Réservations */
+.badge.en_attente { background: #fff3cd; color: #856404; }
+.badge.confirmee { background: #d4edda; color: var(--ok); }
+.badge.annulee { background: #e2e3e5; color: #383d41; text-decoration: line-through; }
+
+/* Carte / menu */
+.badge.vegetarien { background: #d4edda; color: var(--ok); }
+.badge.sur-commande { background: #fff3cd; color: #856404; }
+
 .empty {
   color: var(--text-muted);
   font-style: italic;

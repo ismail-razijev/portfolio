@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mirasia Gestion - Salle</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="salle.css" />
+</head>
+<body data-page="salle.html">
+  <header class="topbar">
+    <h1>🧑‍🍳 Salle</h1>
+  </header>
+  <main>
+    <div class="card">
+      <h2>Tables</h2>
+      <div class="tables-grille" id="tables-grille"></div>
+    </div>
+
+    <div class="card" id="panneau-table" hidden>
+      <h2 id="panneau-titre">Table</h2>
+      <div class="inline-form">
+        <button type="button" onclick="changerStatutTable('libre')">Libre</button>
+        <button type="button" onclick="changerStatutTable('occupee')">Occupée</button>
+        <button type="button" onclick="changerStatutTable('reservee')">Réservée</button>
+      </div>
+
+      <h3>Commande(s) en cours</h3>
+      <div id="commandes-table"></div>
+      <p class="empty" id="empty-commandes-table" hidden>Aucune commande en cours pour cette table.</p>
+
+      <h3>Ajouter des articles</h3>
+      <form class="inline-form" id="form-ajout">
+        <label>Plat
+          <select id="select-plat"></select>
+        </label>
+        <label id="label-variante" hidden>Variante
+          <select id="select-variante"></select>
+        </label>
+        <label>Quantité
+          <input type="number" id="input-quantite" value="1" min="1" style="width:60px" />
+        </label>
+        <button type="button" onclick="ajouterAuPanier()">Ajouter au panier</button>
+      </form>
+      <ul id="panier-salle"></ul>
+      <p class="error-msg" id="error-salle" hidden></p>
+      <button type="button" id="btn-envoyer-cuisine">Envoyer en cuisine</button>
+    </div>
+  </main>
+  <script src="guard.js"></script>
+  <script src="nav.js"></script>
+  <script src="salle.js"></script>
+</body>
+</html>

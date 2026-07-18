@@ -18,7 +18,9 @@ const agent = request.agent(app);
 before(async () => {
   // Table de test toujours vide au départ (RESTART IDENTITY remet les compteurs à 1)
   await pool.query(
-    "TRUNCATE commandes, stock_mouvements, stock, preparations, plats, cuisines RESTART IDENTITY CASCADE"
+    `TRUNCATE commande_lignes, commandes_client, reservations, tables_salle, variantes,
+     commandes, stock_mouvements, stock, preparations, plats, categories, cuisines
+     RESTART IDENTITY CASCADE`
   );
 });
 
@@ -143,6 +145,170 @@ test("les statistiques reflètent la vente enregistrée", async () => {
 test("suppression d'une cuisine encore utilisée par un plat -> 409", async () => {
   const res = await agent.delete(`/api/cuisines/${cuisineId}`);
   assert.equal(res.status, 409);
+});
+
+// --- Carte du restaurant, commande client, salle & réservations (V1.3) ---
+// Module indépendant du stock surgelé ci-dessus : nouvelles tables/routes,
+// mêlant routes publiques (menu, commande, réservation) et protégées (staff).
+
+let categorieId;
+
+test("categories : création (staff)", async () => {
+  const res = await agent.post("/api/categories").send({ nom: "Test-Categorie", ordre_affichage: 1 });
+  assert.equal(res.status, 201);
+  categorieId = res.body.id;
+});
+
+let platCarteId;
+let platIndisponibleId;
+
+test("plats : création avec les champs de carte (catégorie, description, végétarien...)", async () => {
+  const res = await agent.post("/api/plats").send({
+    nom: "Test-Plat-Carte",
+    id_categorie: categorieId,
+    description: "Un plat de test",
+    prix: 12,
+    vegetarien: "oui",
+    unite: "plat",
+  });
+  assert.equal(res.status, 201);
+  assert.equal(res.body.vegetarien, "oui");
+  assert.equal(res.body.categorie_nom, undefined); // POST renvoie la ligne brute, pas la jointure
+  platCarteId = res.body.id;
+
+  const indispo = await agent.post("/api/plats").send({
+    nom: "Test-Plat-Indisponible",
+    id_categorie: categorieId,
+    prix: 5,
+    disponibilite: false,
+  });
+  platIndisponibleId = indispo.body.id;
+});
+
+test("GET /api/menu (public) n'expose que les plats actifs et disponibles", async () => {
+  const res = await request(app).get("/api/menu");
+  assert.equal(res.status, 200);
+  const cat = res.body.find((c) => c.id === categorieId);
+  const noms = cat.plats.map((p) => p.nom);
+  assert.ok(noms.includes("Test-Plat-Carte"));
+  assert.ok(!noms.includes("Test-Plat-Indisponible"));
+});
+
+let variantePouletId;
+
+test("variantes : ajout d'une variante à un plat (staff)", async () => {
+  const res = await agent
+    .post("/api/variantes")
+    .send({ id_plat: platCarteId, nom: "Poulet", prix: 15 });
+  assert.equal(res.status, 201);
+  variantePouletId = res.body.id;
+
+  const liste = await request(app).get(`/api/menu`);
+  const cat = liste.body.find((c) => c.id === categorieId);
+  const plat = cat.plats.find((p) => p.nom === "Test-Plat-Carte");
+  assert.equal(plat.variantes.length, 1);
+  assert.equal(plat.variantes[0].nom, "Poulet");
+});
+
+let tableId;
+
+test("tables : lecture publique, écriture réservée au staff", async () => {
+  const sansAuth = await request(app).get("/api/tables");
+  assert.equal(sansAuth.status, 200);
+
+  const creationSansAuth = await request(app).post("/api/tables").send({ numero: "1" });
+  assert.equal(creationSansAuth.status, 401);
+
+  const creation = await agent.post("/api/tables").send({ numero: "1", capacite: 4 });
+  assert.equal(creation.status, 201);
+  tableId = creation.body.id;
+});
+
+let commandeClientId;
+
+test("commandes-client : création publique, prix recalculé côté serveur", async () => {
+  const res = await request(app)
+    .post("/api/commandes-client")
+    .send({
+      mode: "sur_place",
+      id_table: tableId,
+      lignes: [{ id_plat: platCarteId, id_variante: variantePouletId, quantite: 2 }],
+    });
+  assert.equal(res.status, 201);
+  assert.equal(res.body.total, "30.00"); // 15 x 2, prix de la variante, pas celui envoyé par le client
+  commandeClientId = res.body.id;
+});
+
+test("commandes-client : refuse un plat indisponible", async () => {
+  const res = await request(app)
+    .post("/api/commandes-client")
+    .send({ mode: "a_emporter", lignes: [{ id_plat: platIndisponibleId, quantite: 1 }] });
+  assert.equal(res.status, 400);
+  assert.match(res.body.message, /disponible/);
+});
+
+test("commandes-client : accès en liste réservé au staff, changement de statut", async () => {
+  const sansAuth = await request(app).get("/api/commandes-client");
+  assert.equal(sansAuth.status, 401);
+
+  const liste = await agent.get("/api/commandes-client");
+  assert.equal(liste.status, 200);
+  const commande = liste.body.find((c) => c.id === commandeClientId);
+  assert.equal(commande.lignes.length, 1);
+  assert.equal(commande.table_numero, "1");
+
+  const patch = await agent
+    .patch(`/api/commandes-client/${commandeClientId}`)
+    .send({ statut: "en_preparation" });
+  assert.equal(patch.status, 200);
+  assert.equal(patch.body.statut, "en_preparation");
+});
+
+test("commandes-client : ajout d'articles à une commande existante (staff)", async () => {
+  const res = await agent
+    .patch(`/api/commandes-client/${commandeClientId}`)
+    .send({ ajouter_lignes: [{ id_plat: platCarteId, quantite: 1 }] }); // sans variante -> prix de base (12)
+  assert.equal(res.status, 200);
+  assert.equal(res.body.total, "42.00"); // 30 + 12
+});
+
+test("commandes-client : Jeudis Gourmands calcule automatiquement le prochain jeudi", async () => {
+  const platJeudi = await agent.post("/api/plats").send({
+    nom: "Test-Jeudi-Gourmand",
+    id_categorie: categorieId,
+    prix: 50,
+    sur_commande: true,
+  });
+  const res = await request(app)
+    .post("/api/commandes-client")
+    .send({ mode: "a_emporter", lignes: [{ id_plat: platJeudi.body.id, quantite: 1 }] });
+  assert.equal(res.status, 201);
+  assert.ok(res.body.date_prevue);
+  const jour = new Date(res.body.date_prevue + "T12:00:00Z").getUTCDay();
+  assert.equal(jour, 4); // jeudi
+});
+
+let reservationId;
+
+test("réservations : création publique, liste et confirmation réservées au staff", async () => {
+  const creation = await request(app).post("/api/reservations").send({
+    nom_client: "Test Client",
+    telephone_client: "0470000000",
+    date_reservation: "2026-08-15",
+    heure_reservation: "19:00",
+    nb_personnes: 3,
+  });
+  assert.equal(creation.status, 201);
+  reservationId = creation.body.id;
+
+  const sansAuth = await request(app).get("/api/reservations");
+  assert.equal(sansAuth.status, 401);
+
+  const confirmation = await agent
+    .patch(`/api/reservations/${reservationId}`)
+    .send({ statut: "confirmee", id_table: tableId });
+  assert.equal(confirmation.status, 200);
+  assert.equal(confirmation.body.statut, "confirmee");
 });
 
 test("après déconnexion, les routes protégées redeviennent inaccessibles", async () => {

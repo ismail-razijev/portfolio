@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mirasia Gestion - Carte</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-page="menu.html">
+  <header class="topbar">
+    <h1>🍽️ Mirasia Gestion</h1>
+  </header>
+  <main>
+    <div class="card">
+      <h2>Catégories</h2>
+      <form class="inline-form" id="form-categorie">
+        <label>Nom
+          <input type="text" name="nom" required placeholder="Ex: Desserts" />
+        </label>
+        <label>Ordre d'affichage
+          <input type="number" name="ordre_affichage" value="0" style="width:70px" />
+        </label>
+        <button type="submit">Ajouter</button>
+      </form>
+      <p class="error-msg" id="error-categorie" hidden></p>
+      <table id="table-categories">
+        <thead><tr><th>Nom</th><th>Ordre</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Plats de la carte</h2>
+      <form class="inline-form" id="form-plat-menu">
+        <label>Nom
+          <input type="text" name="nom" required />
+        </label>
+        <label>Catégorie
+          <select name="id_categorie" id="select-categorie"></select>
+        </label>
+        <label>Description
+          <input type="text" name="description" />
+        </label>
+        <label>Prix (€)
+          <input type="number" name="prix" step="0.01" min="0" placeholder="vide si variantes" />
+        </label>
+        <label>Végétarien
+          <select name="vegetarien">
+            <option value="non">Non</option>
+            <option value="oui">Oui</option>
+            <option value="option">Option</option>
+          </select>
+        </label>
+        <label>Unité
+          <select name="unite">
+            <option value="plat">Plat</option>
+            <option value="piece">Pièce</option>
+          </select>
+        </label>
+        <label><input type="checkbox" name="sur_commande" /> Jeudis Gourmands</label>
+        <button type="submit">Ajouter</button>
+      </form>
+      <p class="error-msg" id="error-plat-menu" hidden></p>
+      <table id="table-plats-menu">
+        <thead>
+          <tr><th>Nom</th><th>Catégorie</th><th>Prix</th><th>Végé</th><th>Dispo</th><th>Actif</th><th></th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="card" id="carte-variantes" hidden>
+      <h2>Variantes - <span id="variantes-plat-nom"></span></h2>
+      <form class="inline-form" id="form-variante">
+        <label>Nom
+          <input type="text" name="nom" required placeholder="Ex: Poulet" />
+        </label>
+        <label>Prix (€)
+          <input type="number" name="prix" step="0.01" min="0" required />
+        </label>
+        <button type="submit">Ajouter</button>
+      </form>
+      <table id="table-variantes">
+        <thead><tr><th>Nom</th><th>Prix</th><th>Actif</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <button type="button" id="btn-fermer-variantes">Fermer</button>
+    </div>
+  </main>
+  <script src="guard.js"></script>
+  <script src="nav.js"></script>
+  <script src="menu.js"></script>
+</body>
+</html>

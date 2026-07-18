@@ -1,0 +1,43 @@
+.main-large {
+  max-width: 1400px;
+}
+
+.commandes-grille {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.commande-carte {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-left: 6px solid var(--primary);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.commande-carte.statut-pret { border-left-color: var(--ok); }
+.commande-carte.statut-en_preparation { border-left-color: #d39e00; }
+
+.commande-carte h3 {
+  margin: 0 0 0.3rem 0;
+  font-size: 1.15rem;
+}
+
+.commande-carte .heure {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  margin-bottom: 0.6rem;
+}
+
+.commande-carte ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 0.8rem 0;
+  font-size: 0.95rem;
+}
+
+.commande-carte li {
+  padding: 0.2rem 0;
+}

@@ -6,6 +6,11 @@ function renderNav(active) {
     { href: "preparations.html", label: "Planning" },
     { href: "ventes.html", label: "Ventes" },
     { href: "statistiques.html", label: "Statistiques" },
+    { href: "menu.html", label: "Carte" },
+    { href: "cuisine.html", label: "Cuisine" },
+    { href: "salle.html", label: "Salle" },
+    { href: "reservations-admin.html", label: "Réservations" },
+    { href: "ventes-restaurant.html", label: "Ventes restaurant" },
   ];
   const nav = document.createElement("nav");
   nav.innerHTML =

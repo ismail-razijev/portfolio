@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mirasia Gestion - Ventes restaurant</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-page="ventes-restaurant.html">
+  <header class="topbar">
+    <h1>🍽️ Mirasia Gestion</h1>
+  </header>
+  <main>
+    <div class="stats">
+      <div class="stat-box">
+        <div class="value" id="stat-ca">-</div>
+        <div class="label">Chiffre d'affaires du jour</div>
+      </div>
+      <div class="stat-box">
+        <div class="value" id="stat-nb">-</div>
+        <div class="label">Commandes du jour</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Top plats (aujourd'hui)</h2>
+      <table id="table-top-plats">
+        <thead><tr><th>Plat</th><th>Quantité vendue</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <p class="empty" id="empty-top-plats" hidden>Aucune vente aujourd'hui.</p>
+    </div>
+
+    <div class="card">
+      <h2>Chiffre d'affaires par catégorie (aujourd'hui)</h2>
+      <table id="table-categories-ca">
+        <thead><tr><th>Catégorie</th><th>Chiffre d'affaires</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Export comptabilité</h2>
+      <form class="inline-form" id="form-export">
+        <label>Date (optionnel)
+          <input type="date" id="export-date" />
+        </label>
+        <button type="submit">Télécharger le CSV</button>
+      </form>
+    </div>
+  </main>
+  <script src="guard.js"></script>
+  <script src="nav.js"></script>
+  <script src="ventes-restaurant.js"></script>
+</body>
+</html>

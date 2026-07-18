@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mirasia Gestion - Cuisine</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="cuisine.css" />
+</head>
+<body data-page="cuisine.html">
+  <header class="topbar">
+    <h1>👨‍🍳 Écran cuisine</h1>
+  </header>
+  <main class="main-large">
+    <section>
+      <h2>Sur place</h2>
+      <div class="commandes-grille" id="commandes-sur-place"></div>
+      <p class="empty" id="empty-sur-place" hidden>Aucune commande sur place en cours.</p>
+    </section>
+    <section>
+      <h2>À emporter</h2>
+      <div class="commandes-grille" id="commandes-emporter"></div>
+      <p class="empty" id="empty-emporter" hidden>Aucune commande à emporter en cours.</p>
+    </section>
+  </main>
+  <script src="guard.js"></script>
+  <script src="nav.js"></script>
+  <script src="cuisine.js"></script>
+</body>
+</html>

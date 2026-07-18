@@ -1,0 +1,48 @@
+.tables-grille {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 0.8rem;
+}
+
+.table-carte {
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  padding: 0.8rem;
+  text-align: center;
+  cursor: pointer;
+  background: var(--card-bg);
+}
+
+.table-carte.libre { border-color: var(--ok); }
+.table-carte.occupee { border-color: var(--danger); }
+.table-carte.reservee { border-color: #d39e00; }
+.table-carte.selectionnee { outline: 3px solid var(--primary); }
+
+.table-carte .numero {
+  font-size: 1.3rem;
+  font-weight: bold;
+}
+
+.table-carte .statut-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: capitalize;
+}
+
+#commandes-table ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+#panier-salle {
+  list-style: none;
+  padding: 0;
+  margin: 0.6rem 0;
+}
+
+#panier-salle li {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.3rem 0;
+  border-bottom: 1px solid var(--border);
+}

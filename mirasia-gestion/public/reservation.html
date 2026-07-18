@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mirasia - Réserver une table</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-page="reservation.html">
+  <header class="topbar">
+    <h1>🍽️ Mirasia - Réserver une table</h1>
+  </header>
+  <main>
+    <div class="card" id="vue-formulaire">
+      <h2>Réservation</h2>
+      <form id="form-reservation" class="inline-form">
+        <label>Nom
+          <input type="text" name="nom_client" required />
+        </label>
+        <label>Téléphone
+          <input type="tel" name="telephone_client" required />
+        </label>
+        <label>Date
+          <input type="date" name="date_reservation" required />
+        </label>
+        <label>Heure
+          <input type="time" name="heure_reservation" required />
+        </label>
+        <label>Nombre de personnes
+          <input type="number" name="nb_personnes" min="1" value="2" required />
+        </label>
+        <label>Commentaire
+          <input type="text" name="commentaire" placeholder="Optionnel" />
+        </label>
+        <button type="submit">Envoyer la demande</button>
+      </form>
+      <p class="error-msg" id="error-reservation" hidden></p>
+    </div>
+    <div class="card" id="vue-confirmation" hidden>
+      <h2>Demande envoyée</h2>
+      <p>Merci ! Votre demande de réservation a bien été reçue, le restaurant vous recontactera pour la confirmer.</p>
+    </div>
+  </main>
+  <script src="reservation.js"></script>
+</body>
+</html>

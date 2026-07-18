@@ -1,0 +1,81 @@
+.filtre-vege {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  margin-top: 0.6rem;
+}
+
+#label-table {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  gap: 0.2rem;
+}
+
+.categorie h2 {
+  margin-top: 1.5rem;
+}
+
+.plats-grille {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 0.8rem;
+}
+
+.plat-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.plat-card h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.plat-card .description {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  flex-grow: 1;
+}
+
+.plat-card .prix {
+  font-weight: bold;
+  color: var(--primary);
+}
+
+.plat-card .ligne-ajout {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.plat-card select, .plat-card input[type="number"] {
+  padding: 0.3rem;
+}
+
+.panier ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 0.8rem 0;
+}
+
+.panier li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.9rem;
+}
+
+.panier-total {
+  font-size: 1.1rem;
+}
