@@ -4,6 +4,8 @@ En parallèle de mes études, je suis fondateur et gérant de Mirasia, un restau
 Je m'intéresse particulièrement à l'application pratique de l'intelligence artificielle dans le développement et la gestion d'entreprise, que ce soit pour accélérer la production de code, structurer des projets, ou optimiser des processus métier.
 À travers mes projets, je cherche à allier rigueur technique et sens pratique, avec une approche orientée résultats.
 
+📄 [Mon CV](./cv/CV-Ismail-Razijev.pdf)
+
 ## Projets
 
 ### [Meeting Notes AI](./meeting-notes-ai)
@@ -11,7 +13,7 @@ Analyseur de comptes-rendus de réunion propulsé par l'API Claude. Une transcri
 Stack : Python, API Anthropic, Streamlit.
 🔗 [Démo en ligne](https://portfolio-7q2shyofrzputy8ltgnpmw.streamlit.app)
 
-### [Mirasia Gestion](./mirasia-gestion)
-Application de gestion pour le restaurant Mirasia : stock, planning de préparation, ventes (fonction PL/pgSQL transactionnelle FIFO), statistiques et dashboard, avec authentification et tests automatisés.
+### [Mirasia Gestion](./mirasia-gestion) — 🚧 projet actif, en cours de développement
+Application de gestion pour le restaurant Mirasia : stock, planning de préparation, ventes (fonction PL/pgSQL transactionnelle FIFO), statistiques et dashboard, carte du restaurant, commande client, écran cuisine, interface salle et réservations, avec authentification et tests automatisés.
 Stack : Node.js, Express, PostgreSQL, Docker.
 
