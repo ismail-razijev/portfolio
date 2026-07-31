@@ -17,5 +17,6 @@ Stack : Python, API Anthropic, Streamlit.
 Application de gestion pour le restaurant Mirasia : stock, planning de préparation, ventes (fonction PL/pgSQL transactionnelle FIFO), statistiques et dashboard, carte du restaurant, commande client, écran cuisine, interface salle et réservations, avec authentification et tests automatisés.
 Stack : Node.js, Express, PostgreSQL, Docker.
 🔗 [Démo en ligne — carte & commande client](https://mirasia-gestion.onrender.com/commande.html)
+🔗 [Démo en ligne — côté gestion (admin)](https://mirasia-gestion.onrender.com/login.html) — identifiants de démonstration disponibles sur demande
 > Hébergée sur le plan gratuit de Render : le premier chargement peut prendre 30-60s le temps que le serveur se réveille.
 
