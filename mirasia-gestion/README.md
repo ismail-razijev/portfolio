@@ -229,3 +229,4 @@ npm test
 
 ✅ V2 fonctionnelle (stock, ventes, dashboard)
 ✅ V3 fonctionnelle (carte du restaurant, commande client, cuisine, salle, réservations, ventes restaurant) — testée en local (25 tests automatisés + tests manuels bout-en-bout), pas encore testée en conditions réelles au restaurant
+✅ Démo en ligne déployée sur Render (web service + PostgreSQL, via `render.yaml`) : [mirasia-gestion.onrender.com](https://mirasia-gestion.onrender.com/commande.html) — base peuplée avec la vraie carte (`seed_menu.sql`), identifiants staff de démonstration (différents des identifiants réels du restaurant)
