@@ -7,12 +7,20 @@ const { Pool, types } = require("pg");
 // date en horodatage UTC de minuit local, ce qui peut afficher la veille).
 types.setTypeParser(1082, (val) => val);
 
-const pool = new Pool({
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
-  database: process.env.DB_NAME,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-});
+// DATABASE_URL est fourni automatiquement par les hébergeurs comme Render ou
+// Railway quand une base PostgreSQL est liée au service ; en local, on utilise
+// les variables DB_* séparées du .env à la place.
+const pool = process.env.DATABASE_URL
+  ? new Pool({
+      connectionString: process.env.DATABASE_URL,
+      ssl: { rejectUnauthorized: false },
+    })
+  : new Pool({
+      host: process.env.DB_HOST,
+      port: process.env.DB_PORT,
+      database: process.env.DB_NAME,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+    });
 
 module.exports = pool;
