@@ -90,6 +90,14 @@ function trouverPlat(idPlat) {
   return null;
 }
 
+function ouvrirPanier() {
+  document.getElementById("panier").classList.add("ouvert");
+}
+
+function fermerPanier() {
+  document.getElementById("panier").classList.remove("ouvert");
+}
+
 function ajouterAuPanier(idPlat) {
   const plat = trouverPlat(idPlat);
   const qteInput = document.getElementById(`qte-${idPlat}`);
@@ -118,6 +126,7 @@ function ajouterAuPanier(idPlat) {
     });
   }
   renderPanier();
+  ouvrirPanier();
 }
 
 function retirerDuPanier(index) {
@@ -138,6 +147,12 @@ function renderPanier() {
     .join("");
   const total = cart.reduce((s, l) => s + l.prix_unitaire * l.quantite, 0);
   document.getElementById("panier-total").textContent = formatPrix(total);
+
+  const nbArticles = cart.reduce((s, l) => s + l.quantite, 0);
+  const tab = document.getElementById("panier-tab");
+  tab.hidden = cart.length === 0;
+  document.getElementById("panier-tab-count").textContent = nbArticles;
+  if (cart.length === 0) fermerPanier();
 }
 
 document.getElementById("select-mode").addEventListener("change", (e) => {
@@ -145,6 +160,9 @@ document.getElementById("select-mode").addEventListener("change", (e) => {
 });
 
 document.getElementById("filtre-vegetarien").addEventListener("change", renderMenu);
+
+document.getElementById("panier-close").addEventListener("click", fermerPanier);
+document.getElementById("panier-tab").addEventListener("click", ouvrirPanier);
 
 document.getElementById("btn-commander").addEventListener("click", async () => {
   const errorEl = document.getElementById("error-commande");

@@ -40,8 +40,13 @@
 
       <div id="menu-categories"></div>
 
+      <button type="button" id="panier-tab" class="panier-tab" hidden>
+        🧾 <span id="panier-tab-count">0</span>
+      </button>
+
       <div class="card panier" id="panier">
-        <h2>Panier</h2>
+        <button type="button" id="panier-close" class="panier-close" aria-label="Fermer le panier">✕</button>
+        <h2>🧾 Votre commande</h2>
         <p class="empty" id="panier-vide">Votre panier est vide.</p>
         <ul id="panier-lignes"></ul>
         <p class="panier-total">Total : <strong id="panier-total">0,00 €</strong></p>
