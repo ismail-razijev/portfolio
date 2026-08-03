@@ -229,6 +229,6 @@ npm test
 
 ✅ V2 fonctionnelle (stock, ventes, dashboard)
 ✅ V3 fonctionnelle (carte du restaurant, commande client, cuisine, salle, réservations, ventes restaurant) — testée en local (25 tests automatisés + tests manuels bout-en-bout), pas encore testée en conditions réelles au restaurant
-✅ Démo en ligne déployée sur Render (web service + PostgreSQL, via `render.yaml`) — base peuplée avec la vraie carte (`seed_menu.sql`), identifiants staff de démonstration (différents des identifiants réels du restaurant) :
+✅ Démo en ligne déployée sur Render (web service Node.js, via `render.yaml`) connecté à une base PostgreSQL Supabase — base peuplée avec la vraie carte (`seed_menu.sql`), identifiants staff de démonstration (différents des identifiants réels du restaurant) :
 - [Côté client — carte & commande](https://mirasia-gestion.onrender.com/commande.html)
 - [Côté gestion — admin](https://mirasia-gestion.onrender.com/login.html) : identifiants de démonstration disponibles sur demande
