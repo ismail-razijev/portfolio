@@ -1,17 +1,19 @@
-function renderNav(active) {
-  const pages = [
-    { href: "index.html", label: "Dashboard" },
-    { href: "plats.html", label: "Plats & cuisines" },
-    { href: "stock.html", label: "Stock" },
-    { href: "preparations.html", label: "Planning" },
-    { href: "ventes.html", label: "Ventes" },
-    { href: "statistiques.html", label: "Statistiques" },
-    { href: "menu.html", label: "Carte" },
-    { href: "cuisine.html", label: "Cuisine" },
-    { href: "salle.html", label: "Salle" },
-    { href: "reservations-admin.html", label: "Réservations" },
-    { href: "ventes-restaurant.html", label: "Ventes restaurant" },
+function renderNav(active, role) {
+  const allPages = [
+    { href: "index.html", label: "Dashboard", roles: ["admin"] },
+    { href: "plats.html", label: "Plats & cuisines", roles: ["admin"] },
+    { href: "stock.html", label: "Stock", roles: ["admin"] },
+    { href: "preparations.html", label: "Planning", roles: ["admin"] },
+    { href: "ventes.html", label: "Ventes", roles: ["admin"] },
+    { href: "statistiques.html", label: "Statistiques", roles: ["admin"] },
+    { href: "menu.html", label: "Carte", roles: ["admin"] },
+    { href: "cuisine.html", label: "Cuisine", roles: ["admin", "cuisine"] },
+    { href: "salle.html", label: "Salle", roles: ["admin", "salle"] },
+    { href: "reservations-admin.html", label: "Réservations", roles: ["admin", "salle"] },
+    { href: "ventes-restaurant.html", label: "Ventes restaurant", roles: ["admin"] },
+    { href: "users.html", label: "Comptes", roles: ["admin"] },
   ];
+  const pages = allPages.filter((p) => p.roles.includes(role));
   const nav = document.createElement("nav");
   nav.innerHTML =
     pages
@@ -28,10 +30,12 @@ async function logout() {
   window.location.href = "login.html";
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   const topbar = document.querySelector("header.topbar");
   if (topbar) {
-    topbar.appendChild(renderNav(document.body.dataset.page));
+    const auth = await window.mirasiaAuthReady;
+    if (!auth.authenticated) return; // guard.js redirige déjà vers login.html
+    topbar.appendChild(renderNav(document.body.dataset.page, auth.role));
     document.getElementById("logout-link").addEventListener("click", (e) => {
       e.preventDefault();
       logout();

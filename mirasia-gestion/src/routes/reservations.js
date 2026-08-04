@@ -1,7 +1,7 @@
 const express = require("express");
 const pool = require("../db/pool");
 const { handleDbError } = require("../utils/errors");
-const { requireAuth } = require("../middleware/auth");
+const { requireRole } = require("../middleware/auth");
 
 const router = express.Router();
 
@@ -26,7 +26,7 @@ router.post("/", async (req, res) => {
 });
 
 // Liste des réservations (admin : reservations-admin.html)
-router.get("/", requireAuth, async (req, res) => {
+router.get("/", requireRole("admin", "salle"), async (req, res) => {
   try {
     const result = await pool.query(`
       SELECT r.*, t.numero AS table_numero
@@ -41,7 +41,7 @@ router.get("/", requireAuth, async (req, res) => {
 });
 
 // Confirmation / annulation / assignation de table (admin)
-router.patch("/:id", requireAuth, async (req, res) => {
+router.patch("/:id", requireRole("admin", "salle"), async (req, res) => {
   const { statut, id_table } = req.body;
   try {
     const result = await pool.query(

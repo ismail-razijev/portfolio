@@ -16,7 +16,12 @@ const pool = require("../src/db/pool");
 const agent = request.agent(app);
 
 before(async () => {
-  // Table de test toujours vide au départ (RESTART IDENTITY remet les compteurs à 1)
+  // Attend que le compte admin initial soit créé (bootstrap au démarrage de l'app,
+  // voir src/db/bootstrapAdmin.js) avant de commencer les tests de login.
+  await app.ready;
+  // Table de test toujours vide au départ (RESTART IDENTITY remet les compteurs à 1).
+  // `users` n'est volontairement pas tronquée : elle contient le compte admin
+  // bootstrapé, réutilisé par tous les tests via ADMIN_USERNAME/ADMIN_PASSWORD.
   await pool.query(
     `TRUNCATE commande_lignes, commandes_client, reservations, tables_salle, variantes,
      commandes, stock_mouvements, stock, preparations, plats, categories, cuisines
@@ -309,6 +314,69 @@ test("réservations : création publique, liste et confirmation réservées au s
     .send({ statut: "confirmee", id_table: tableId });
   assert.equal(confirmation.status, 200);
   assert.equal(confirmation.body.statut, "confirmee");
+});
+
+// --- Multi-utilisateurs avec rôles (V1.4) ---
+
+let cuisineAgent;
+let salleAgent;
+
+test("users : admin peut créer un compte cuisine et un compte salle", async () => {
+  const cuisine = await agent.post("/api/users").send({
+    username: "test-cuisine",
+    password: "test-pass-cuisine",
+    role: "cuisine",
+  });
+  assert.equal(cuisine.status, 201);
+  assert.equal(cuisine.body.role, "cuisine");
+  assert.equal(cuisine.body.password_hash, undefined); // jamais renvoyé au client
+
+  const salle = await agent.post("/api/users").send({
+    username: "test-salle",
+    password: "test-pass-salle",
+    role: "salle",
+  });
+  assert.equal(salle.status, 201);
+});
+
+test("users : création de compte refusée pour un rôle non-admin (403)", async () => {
+  cuisineAgent = request.agent(app);
+  const login = await cuisineAgent
+    .post("/api/login")
+    .send({ username: "test-cuisine", password: "test-pass-cuisine" });
+  assert.equal(login.status, 200);
+  assert.equal(login.body.role, "cuisine");
+
+  const res = await cuisineAgent.post("/api/users").send({
+    username: "intrus",
+    password: "x",
+    role: "admin",
+  });
+  assert.equal(res.status, 403);
+});
+
+test("rôle cuisine : accès à l'écran cuisine, refus du back-office stock", async () => {
+  const commandes = await cuisineAgent.get("/api/commandes-client");
+  assert.equal(commandes.status, 200);
+
+  const plats = await cuisineAgent.get("/api/plats");
+  assert.equal(plats.status, 403);
+});
+
+test("rôle salle : accès aux tables et réservations, refus du back-office et de la compta", async () => {
+  salleAgent = request.agent(app);
+  await salleAgent
+    .post("/api/login")
+    .send({ username: "test-salle", password: "test-pass-salle" });
+
+  const table = await salleAgent.patch(`/api/tables/${tableId}`).send({ statut: "occupee" });
+  assert.equal(table.status, 200);
+
+  const plats = await salleAgent.get("/api/plats");
+  assert.equal(plats.status, 403);
+
+  const stats = await salleAgent.get("/api/commandes-client/statistiques");
+  assert.equal(stats.status, 403); // export/statistiques compta réservés à l'admin
 });
 
 test("après déconnexion, les routes protégées redeviennent inaccessibles", async () => {

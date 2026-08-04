@@ -1,7 +1,7 @@
 const express = require("express");
 const pool = require("../db/pool");
 const { handleDbError } = require("../utils/errors");
-const { requireAuth } = require("../middleware/auth");
+const { requireRole } = require("../middleware/auth");
 
 const router = express.Router();
 
@@ -51,7 +51,7 @@ router.post("/", async (req, res) => {
 });
 
 // Liste des commandes (cuisine, salle, admin). ?statut=recu,en_preparation
-router.get("/", requireAuth, async (req, res) => {
+router.get("/", requireRole("admin", "cuisine", "salle"), async (req, res) => {
   try {
     const params = [];
     let where = "";
@@ -71,7 +71,7 @@ router.get("/", requireAuth, async (req, res) => {
 
 // Statistiques du jour pour le dashboard ventes restaurant (distinct des
 // statistiques du module stock surgelé, voir statistiques.js).
-router.get("/statistiques", requireAuth, async (req, res) => {
+router.get("/statistiques", requireRole("admin"), async (req, res) => {
   try {
     const totaux = await pool.query(`
       SELECT COUNT(*) AS nombre_commandes, COALESCE(SUM(total), 0) AS chiffre_affaires
@@ -109,7 +109,7 @@ router.get("/statistiques", requireAuth, async (req, res) => {
 });
 
 // Export CSV des commandes (compta). ?date=2026-07-18, sinon toutes.
-router.get("/export.csv", requireAuth, async (req, res) => {
+router.get("/export.csv", requireRole("admin"), async (req, res) => {
   try {
     const params = [];
     let where = "";
@@ -170,7 +170,7 @@ router.get("/:id", async (req, res) => {
 
 // Cuisine/salle : changement de statut, et/ou ajout d'articles à une commande
 // existante (salle.js). Staff uniquement.
-router.patch("/:id", requireAuth, async (req, res) => {
+router.patch("/:id", requireRole("admin", "cuisine", "salle"), async (req, res) => {
   const { statut, ajouter_lignes } = req.body;
   try {
     if (Array.isArray(ajouter_lignes) && ajouter_lignes.length > 0) {

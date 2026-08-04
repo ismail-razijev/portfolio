@@ -10,7 +10,7 @@ C'est aussi un projet portfolio pensé pour démontrer une gamme de compétences
 
 ## Ce que ça fait
 
-- **Authentification** : accès protégé par identifiant/mot de passe, session sécurisée
+- **Authentification multi-utilisateurs avec rôles** : chaque membre du staff a son propre compte (admin / cuisine / salle), session sécurisée, gestion des comptes depuis l'application
 - **Gestion des cuisines et des plats** : créer/modifier/activer/désactiver des plats, les rattacher à une cuisine, recherche et filtre par cuisine
 - **Suivi du stock** : quantité disponible par plat, seuil d'alerte, dates de préparation/péremption, filtre "alertes uniquement"
 - **Historique des mouvements de stock** : chaque changement de quantité est tracé automatiquement (trigger PL/pgSQL), consultable sur la page Stock
@@ -46,11 +46,16 @@ mirasia-gestion/
 │   │   ├── pool.js              # Connexion PostgreSQL
 │   │   ├── schema.sql           # Schéma complet (tables, contraintes, trigger V1.1)
 │   │   ├── migration_v1_1.sql   # Contraintes CHECK + historique des mouvements + trigger
-│   │   └── migration_v1_2.sql   # Table commandes + fonction PL/pgSQL fn_enregistrer_vente
+│   │   ├── migration_v1_2.sql   # Table commandes + fonction PL/pgSQL fn_enregistrer_vente
+│   │   ├── migration_v1_3.sql   # Carte, commande client, salle, réservations
+│   │   ├── migration_v1_4.sql   # Table users (comptes staff avec rôles)
+│   │   └── bootstrapAdmin.js    # Crée le 1er compte admin (ADMIN_USERNAME/PASSWORD) si `users` est vide
 │   ├── middleware/
-│   │   └── auth.js              # Middleware requireAuth
+│   │   └── auth.js              # requireRole(...roles) : authentifié + rôle autorisé
+│   ├── utils/password.js        # Hash/vérification de mot de passe (scrypt, module crypto natif)
 │   ├── routes/
-│   │   ├── auth.js              # Login / logout / statut de session
+│   │   ├── auth.js              # Login / logout / statut de session (id, username, rôle)
+│   │   ├── users.js             # CRUD comptes staff (admin uniquement)
 │   │   ├── cuisines.js          # CRUD cuisines
 │   │   ├── plats.js             # CRUD plats
 │   │   ├── stock.js             # CRUD stock + historique des mouvements
@@ -62,30 +67,32 @@ mirasia-gestion/
 │   │   ├── variantes.js         # CRUD variantes de prix (staff)
 │   │   ├── menu.js              # GET carte publique (clients)
 │   │   ├── tables.js            # Tables du restaurant (lecture publique, écriture staff)
-│   │   ├── commandesClient.js   # Commandes client, cuisine, salle, stats, export CSV (auth mixte)
-│   │   └── reservations.js      # Réservations de table (auth mixte)
+│   │   ├── commandesClient.js   # Commandes client, cuisine, salle, stats, export CSV (rôles mixtes)
+│   │   └── reservations.js      # Réservations de table (rôles mixtes : admin + salle)
 │   └── utils/
-│       └── errors.js            # Traduction des erreurs PostgreSQL en réponses HTTP claires
+│       ├── errors.js            # Traduction des erreurs PostgreSQL en réponses HTTP claires
+│       └── password.js          # Hash/vérification de mot de passe (scrypt)
 ├── public/                       # Frontend (servi statiquement par Express)
-│   ├── login.html / login.js     # Page de connexion
-│   ├── guard.js                  # Redirige vers login.html si non authentifié
-│   ├── nav.js                    # Navigation + déconnexion
-│   ├── index.html                # Dashboard
-│   ├── plats.html                # Gestion des plats & cuisines (avec recherche/filtre)
-│   ├── stock.html                # Gestion du stock + historique des mouvements
-│   ├── preparations.html         # Planning de préparation (avec filtres)
-│   ├── ventes.html                # Enregistrement des ventes
-│   ├── statistiques.html          # Statistiques et mini-graphiques
+│   ├── login.html / login.js     # Page de connexion (redirige selon le rôle)
+│   ├── guard.js                  # Vérifie authentification + rôle autorisé pour la page (data-roles)
+│   ├── nav.js                    # Navigation filtrée par rôle + déconnexion
+│   ├── index.html                # Dashboard (admin)
+│   ├── plats.html                # Gestion des plats & cuisines (admin, avec recherche/filtre)
+│   ├── stock.html                # Gestion du stock + historique des mouvements (admin)
+│   ├── preparations.html         # Planning de préparation (admin, avec filtres)
+│   ├── ventes.html                # Enregistrement des ventes (admin)
+│   ├── statistiques.html          # Statistiques et mini-graphiques (admin)
+│   ├── users.html / users.js      # Gestion des comptes staff (admin)
 │   ├── commande.html / .js / .css # Commande client (public, sans authentification)
 │   ├── reservation.html / .js     # Demande de réservation (public)
-│   ├── cuisine.html / .js / .css  # Écran cuisine (staff, polling ~8s)
-│   ├── salle.html / .js / .css    # Interface salle/serveur (staff)
-│   ├── menu.html / .js            # Admin carte : catégories, plats, variantes (staff)
-│   ├── reservations-admin.html / .js # Gestion des réservations (staff)
-│   ├── ventes-restaurant.html / .js  # Dashboard ventes restaurant + export CSV (staff)
+│   ├── cuisine.html / .js / .css  # Écran cuisine (rôles admin + cuisine, polling ~8s)
+│   ├── salle.html / .js / .css    # Interface salle/serveur (rôles admin + salle)
+│   ├── menu.html / .js            # Admin carte : catégories, plats, variantes (admin)
+│   ├── reservations-admin.html / .js # Gestion des réservations (rôles admin + salle)
+│   ├── ventes-restaurant.html / .js  # Dashboard ventes restaurant + export CSV (admin)
 │   └── style.css
 ├── tests/
-│   └── api.test.js               # Tests d'intégration (25 cas, base de données dédiée)
+│   └── api.test.js               # Tests d'intégration (base de données dédiée)
 ├── Dockerfile
 ├── docker-compose.yml
 └── .dockerignore
@@ -131,11 +138,27 @@ reservations (id, nom_client, telephone_client, date_reservation,
 
 Import de la carte réelle (~70 plats) : `src/db/seed_menu.sql`, à appliquer manuellement (voir Installation).
 
+### Comptes staff et rôles (V1.4)
+
+```
+users (id, username, nom_complet, password_hash, password_salt, role, actif, date_creation)
+```
+
+`role` limité par `CHECK` à `admin` / `cuisine` / `salle`. Mot de passe jamais stocké en clair : haché avec `scrypt` (module `crypto` natif de Node, sans dépendance native à compiler sur l'hébergeur), sel unique par utilisateur.
+
 ## Authentification
 
-L'accès à toute l'API (sauf `/api/health`, `/api/login`, `/api/me`) nécessite une session valide. Identifiant et mot de passe sont définis dans `.env` (`ADMIN_USERNAME`, `ADMIN_PASSWORD`). Les pages du frontend redirigent automatiquement vers `login.html` si la session n'est pas valide (`public/guard.js`).
+Chaque membre du staff a son propre compte (table `users`), avec un rôle qui détermine ce qu'il peut voir/faire :
 
-Exception : `menu.js`, `tables.js` (en lecture), `commandesClient.js` et `reservations.js` servent à la fois des pages publiques (client) et des pages staff. Contrairement aux autres routeurs (une seule politique d'auth appliquée au montage dans `index.js`), `requireAuth` y est appliqué route par route, à l'intérieur du fichier.
+- **admin** : back-office complet (stock, carte, ventes, statistiques, gestion des comptes)
+- **cuisine** : écran cuisine uniquement (suivi et changement de statut des commandes)
+- **salle** : interface salle (tables, prise de commande, réservations)
+
+L'accès à toute l'API (sauf `/api/health`, `/api/login`, `/api/me`, et les endpoints publics ci-dessous) nécessite une session valide **et** le bon rôle (middleware `requireRole`, voir `src/middleware/auth.js`). Les pages du frontend redirigent vers `login.html` si la session n'est pas valide, ou vers la page d'accueil du rôle si la page n'est pas autorisée (`public/guard.js`, attribut `data-roles` sur `<body>`).
+
+Le tout premier compte admin est créé automatiquement au démarrage du serveur à partir de `ADMIN_USERNAME`/`ADMIN_PASSWORD` (`.env`), uniquement si la table `users` est vide (`src/db/bootstrapAdmin.js`). Ensuite, tous les comptes (y compris pour changer ce mot de passe initial) se gèrent depuis la page **Comptes** de l'application (admin uniquement).
+
+Exception : `menu.js`, `tables.js` (en lecture), `commandesClient.js` et `reservations.js` servent à la fois des pages publiques (client) et des pages staff. Contrairement aux autres routeurs (une seule politique de rôle appliquée au montage dans `index.js`), `requireRole` y est appliqué route par route, à l'intérieur du fichier, avec des rôles différents selon l'endpoint (ex: liste des commandes ouverte à `admin`/`cuisine`/`salle`, export compta réservé à `admin`).
 
 ## Installation (sans Docker)
 
@@ -156,6 +179,7 @@ psql -U postgres -c "CREATE DATABASE mirasia;"
 psql -U postgres -d mirasia -f src/db/schema.sql
 psql -U postgres -d mirasia -f src/db/migration_v1_2.sql
 psql -U postgres -d mirasia -f src/db/migration_v1_3.sql
+psql -U postgres -d mirasia -f src/db/migration_v1_4.sql
 ```
 
 Optionnel : importer la carte complète du restaurant (catégories, plats, variantes) :
@@ -178,6 +202,8 @@ ADMIN_PASSWORD=choisis-un-mot-de-passe-solide
 SESSION_SECRET=une-longue-chaine-aleatoire
 ```
 
+`ADMIN_USERNAME`/`ADMIN_PASSWORD` ne servent qu'une fois, pour créer le tout premier compte admin au premier démarrage (table `users` vide). Les comptes suivants (staff cuisine/salle, autres admins) se créent ensuite depuis la page **Comptes** de l'application.
+
 ```bash
 npm start
 ```
@@ -192,7 +218,7 @@ Prérequis : Docker et Docker Compose installés, fichier `.env` créé comme ci
 docker compose up --build
 ```
 
-Cela démarre deux conteneurs : `db` (PostgreSQL, schéma initialisé automatiquement au premier démarrage via `src/db/schema.sql` et `migration_v1_2.sql`) et `app` (le serveur Node.js), reliés par un réseau Docker interne. L'application est accessible sur `http://localhost:3000`.
+Cela démarre deux conteneurs : `db` (PostgreSQL, schéma initialisé automatiquement au premier démarrage via `src/db/schema.sql` et les migrations) et `app` (le serveur Node.js), reliés par un réseau Docker interne. L'application est accessible sur `http://localhost:3000`.
 
 > Configuration écrite et relue mais non testée sur cette machine (Docker n'y est pas installé) — à valider avant un déploiement.
 
@@ -205,12 +231,13 @@ psql -U postgres -c "CREATE DATABASE mirasia_test;"
 psql -U postgres -d mirasia_test -f src/db/schema.sql
 psql -U postgres -d mirasia_test -f src/db/migration_v1_2.sql
 psql -U postgres -d mirasia_test -f src/db/migration_v1_3.sql
+psql -U postgres -d mirasia_test -f src/db/migration_v1_4.sql
 npm test
 ```
 
 `seed_menu.sql` n'est volontairement pas appliqué sur `mirasia_test` : ce sont de vraies données de carte, pas des données de test. Sur Windows, penser à `chcp 65001` avant les commandes `psql -f` (voir note plus haut).
 
-25 tests couvrent : authentification (accès refusé sans session, login valide/invalide, déconnexion), CRUD plats/cuisines, contraintes CHECK, création de stock, vente avec décrément correct du stock et traçage dans l'historique, refus d'une vente si stock insuffisant, dashboard, statistiques, refus de suppression d'une cuisine encore utilisée, ainsi que la carte du restaurant : catégories/variantes, carte publique filtrée sur les plats disponibles, tables (lecture publique/écriture staff), commande client (prix recalculé côté serveur, refus si plat indisponible), changement de statut et ajout d'articles à une commande, calcul automatique de la date des Jeudis Gourmands, et réservations (création publique, confirmation staff).
+Les tests couvrent : authentification multi-rôles (accès refusé sans session, login valide/invalide, déconnexion, accès refusé/autorisé selon le rôle admin/cuisine/salle), gestion des comptes staff (admin uniquement), CRUD plats/cuisines, contraintes CHECK, création de stock, vente avec décrément correct du stock et traçage dans l'historique, refus d'une vente si stock insuffisant, dashboard, statistiques, refus de suppression d'une cuisine encore utilisée, ainsi que la carte du restaurant : catégories/variantes, carte publique filtrée sur les plats disponibles, tables (lecture publique/écriture staff), commande client (prix recalculé côté serveur, refus si plat indisponible), changement de statut et ajout d'articles à une commande, calcul automatique de la date des Jeudis Gourmands, et réservations (création publique, confirmation staff).
 
 ## Roadmap
 
@@ -223,12 +250,14 @@ npm test
   - Étape 3 : écran cuisine
   - Étape 4 : interface salle/serveur
   - Étape 5 : back-office admin étendu (CRUD carte, dashboard ventes restaurant, export CSV)
-- **V4 (plus tard)** : gestion multi-utilisateurs avec rôles, module de caisse complet, notifications automatiques (email) sur alerte de stock, temps réel (websockets) pour l'écran cuisine au lieu du polling
+- **V4** : gestion multi-utilisateurs avec rôles (admin/cuisine/salle) *(fonctionnelle)*
+  - Reste à faire pour V4 : module de caisse complet, notifications automatiques (email) sur alerte de stock, temps réel (websockets) pour l'écran cuisine au lieu du polling
 
 ## Statut
 
 ✅ V2 fonctionnelle (stock, ventes, dashboard)
-✅ V3 fonctionnelle (carte du restaurant, commande client, cuisine, salle, réservations, ventes restaurant) — testée en local (25 tests automatisés + tests manuels bout-en-bout), pas encore testée en conditions réelles au restaurant
+✅ V3 fonctionnelle (carte du restaurant, commande client, cuisine, salle, réservations, ventes restaurant) — testée en local (tests automatisés + tests manuels bout-en-bout), pas encore testée en conditions réelles au restaurant
+✅ V4 fonctionnelle (comptes staff multi-rôles admin/cuisine/salle) — testée en local (tests automatisés + tests manuels), migration `migration_v1_4.sql` à appliquer sur la base Supabase avant/au déploiement de cette version
 ✅ Démo en ligne déployée sur Render (web service Node.js, via `render.yaml`) connecté à une base PostgreSQL Supabase — base peuplée avec la vraie carte (`seed_menu.sql`), identifiants staff de démonstration (différents des identifiants réels du restaurant) :
 - [Côté client — carte & commande](https://mirasia-gestion.onrender.com/commande.html)
 - [Côté gestion — admin](https://mirasia-gestion.onrender.com/login.html) : identifiants de démonstration disponibles sur demande

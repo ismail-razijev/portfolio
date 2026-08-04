@@ -6,9 +6,11 @@ const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const morgan = require("morgan");
 const pool = require("./db/pool");
-const { requireAuth } = require("./middleware/auth");
+const { requireRole } = require("./middleware/auth");
+const { bootstrapAdmin } = require("./db/bootstrapAdmin");
 
 const authRouter = require("./routes/auth");
+const usersRouter = require("./routes/users");
 const cuisinesRouter = require("./routes/cuisines");
 const platsRouter = require("./routes/plats");
 const stockRouter = require("./routes/stock");
@@ -59,30 +61,40 @@ app.get("/api/health", async (req, res) => {
 
 app.use("/api", authRouter);
 
-app.use("/api/cuisines", requireAuth, cuisinesRouter);
-app.use("/api/plats", requireAuth, platsRouter);
-app.use("/api/stock", requireAuth, stockRouter);
-app.use("/api/preparations", requireAuth, preparationsRouter);
-app.use("/api/commandes", requireAuth, commandesRouter);
-app.use("/api/statistiques", requireAuth, statistiquesRouter);
-app.use("/api/dashboard", requireAuth, dashboardRouter);
+// Back-office stock surgelé + carte + comptes : réservé au rôle admin (V1.4).
+app.use("/api/users", requireRole("admin"), usersRouter);
+app.use("/api/cuisines", requireRole("admin"), cuisinesRouter);
+app.use("/api/plats", requireRole("admin"), platsRouter);
+app.use("/api/stock", requireRole("admin"), stockRouter);
+app.use("/api/preparations", requireRole("admin"), preparationsRouter);
+app.use("/api/commandes", requireRole("admin"), commandesRouter);
+app.use("/api/statistiques", requireRole("admin"), statistiquesRouter);
+app.use("/api/dashboard", requireRole("admin"), dashboardRouter);
+app.use("/api/categories", requireRole("admin"), categoriesRouter);
+app.use("/api/variantes", requireRole("admin"), variantesRouter);
 
 // Carte du restaurant, commande client, salle & réservations (V1.3).
-// commandesClientRouter et reservationsRouter appliquent requireAuth
-// route par route en interne (POST public, GET liste/PATCH réservés au staff) :
-// seul module de l'app où le même routeur sert du public et du staff.
-app.use("/api/categories", requireAuth, categoriesRouter);
-app.use("/api/variantes", requireAuth, variantesRouter);
+// commandesClientRouter, tablesRouter et reservationsRouter appliquent
+// requireRole route par route en interne (POST/GET publics, reste réservé
+// au staff avec un rôle précis) : seuls modules de l'app où le même routeur
+// sert à la fois du public et du staff.
 app.use("/api/menu", menuRouter);
 app.use("/api/tables", tablesRouter);
 app.use("/api/commandes-client", commandesClientRouter);
 app.use("/api/reservations", reservationsRouter);
 
+const readyPromise = bootstrapAdmin().catch((err) => {
+  console.error("Erreur lors du bootstrap du compte admin :", err.message);
+});
+
 if (require.main === module) {
-  const port = process.env.PORT || 3000;
-  app.listen(port, () => {
-    console.log(`Serveur lancé sur http://localhost:${port}`);
+  readyPromise.then(() => {
+    const port = process.env.PORT || 3000;
+    app.listen(port, () => {
+      console.log(`Serveur lancé sur http://localhost:${port}`);
+    });
   });
 }
 
 module.exports = app;
+module.exports.ready = readyPromise;

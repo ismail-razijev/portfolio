@@ -1,7 +1,7 @@
 const express = require("express");
 const pool = require("../db/pool");
 const { handleDbError } = require("../utils/errors");
-const { requireAuth } = require("../middleware/auth");
+const { requireRole } = require("../middleware/auth");
 
 const router = express.Router();
 
@@ -19,7 +19,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.post("/", requireAuth, async (req, res) => {
+router.post("/", requireRole("admin", "salle"), async (req, res) => {
   const { numero, capacite } = req.body;
   if (!numero) {
     return res.status(400).json({ message: "Le champ 'numero' est requis." });
@@ -36,7 +36,7 @@ router.post("/", requireAuth, async (req, res) => {
   }
 });
 
-router.patch("/:id", requireAuth, async (req, res) => {
+router.patch("/:id", requireRole("admin", "salle"), async (req, res) => {
   const { numero, capacite, statut } = req.body;
   try {
     const result = await pool.query(
@@ -56,7 +56,7 @@ router.patch("/:id", requireAuth, async (req, res) => {
   }
 });
 
-router.delete("/:id", requireAuth, async (req, res) => {
+router.delete("/:id", requireRole("admin", "salle"), async (req, res) => {
   try {
     const result = await pool.query(
       "DELETE FROM tables_salle WHERE id = $1 RETURNING *",

@@ -10,11 +10,12 @@ document.getElementById("form-login").addEventListener("submit", async (e) => {
     }),
   });
   const errorEl = document.getElementById("error-login");
+  const data = await res.json();
   if (!res.ok) {
-    const data = await res.json();
     errorEl.textContent = data.message;
     errorEl.hidden = false;
     return;
   }
-  window.location.href = "index.html";
+  const landing = { cuisine: "cuisine.html", salle: "salle.html" }[data.role] || "index.html";
+  window.location.href = landing;
 });
