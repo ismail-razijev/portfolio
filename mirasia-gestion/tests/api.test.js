@@ -229,7 +229,29 @@ test("tables : lecture publique, écriture réservée au staff", async () => {
 
   const creation = await agent.post("/api/tables").send({ numero: "1", capacite: 4 });
   assert.equal(creation.status, 201);
+  assert.equal(creation.body.forme, "carre"); // valeur par défaut
   tableId = creation.body.id;
+});
+
+test("tables : plan de salle (forme, position libre, déplacement)", async () => {
+  const ronde = await agent
+    .post("/api/tables")
+    .send({ numero: "2", capacite: 2, forme: "rond", pos_x: 100, pos_y: 60 });
+  assert.equal(ronde.status, 201);
+  assert.equal(ronde.body.forme, "rond");
+  assert.equal(ronde.body.pos_x, 100);
+  assert.equal(ronde.body.pos_y, 60);
+
+  const deplacement = await agent
+    .patch(`/api/tables/${ronde.body.id}`)
+    .send({ pos_x: 250, pos_y: 180 });
+  assert.equal(deplacement.status, 200);
+  assert.equal(deplacement.body.pos_x, 250);
+  assert.equal(deplacement.body.pos_y, 180);
+  assert.equal(deplacement.body.forme, "rond"); // inchangée par un déplacement
+
+  const formeInvalide = await agent.post("/api/tables").send({ numero: "3", forme: "triangle" });
+  assert.equal(formeInvalide.status, 400);
 });
 
 let commandeClientId;

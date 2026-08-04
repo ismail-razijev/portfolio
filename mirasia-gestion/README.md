@@ -21,7 +21,7 @@ C'est aussi un projet portfolio pensé pour démontrer une gamme de compétences
 - **Carte du restaurant** : catégories, plats (description, prix ou variantes poulet/bœuf, végétarien, disponibilité), import de la carte réelle
 - **Commande client** : menu public par catégorie, filtre végétarien, panier, mode sur place (numéro de table) / à emporter, "Jeudis Gourmands" sur réservation (Beshparmak et co., date calculée automatiquement)
 - **Écran cuisine** : commandes entrantes triées par arrivée, groupées par table, statut recu → en_preparation → pret → servi
-- **Interface salle** : grille des tables (libre/occupée/réservée), prise de commande, ajout d'articles à une commande en cours
+- **Interface salle** : plan de salle personnalisable (tables carrées/rondes, position libre par glisser-déposer), statut par table (libre/occupée/réservée), prise de commande, ajout d'articles à une commande en cours
 - **Réservations de table** : demande publique, confirmation/annulation et assignation de table côté staff
 - **Ventes restaurant** : chiffre d'affaires du jour, top plats, chiffre par catégorie, export CSV pour la compta
 
@@ -49,6 +49,7 @@ mirasia-gestion/
 │   │   ├── migration_v1_2.sql   # Table commandes + fonction PL/pgSQL fn_enregistrer_vente
 │   │   ├── migration_v1_3.sql   # Carte, commande client, salle, réservations
 │   │   ├── migration_v1_4.sql   # Table users (comptes staff avec rôles)
+│   │   ├── migration_v1_5.sql   # Plan de salle : forme + position libre des tables
 │   │   └── bootstrapAdmin.js    # Crée le 1er compte admin (ADMIN_USERNAME/PASSWORD) si `users` est vide
 │   ├── middleware/
 │   │   └── auth.js              # requireRole(...roles) : authentifié + rôle autorisé
@@ -86,7 +87,7 @@ mirasia-gestion/
 │   ├── commande.html / .js / .css # Commande client (public, sans authentification)
 │   ├── reservation.html / .js     # Demande de réservation (public)
 │   ├── cuisine.html / .js / .css  # Écran cuisine (rôles admin + cuisine, polling ~8s)
-│   ├── salle.html / .js / .css    # Interface salle/serveur (rôles admin + salle)
+│   ├── salle.html / .js / .css    # Interface salle : plan de salle éditable + prise de commande (rôles admin + salle)
 │   ├── menu.html / .js            # Admin carte : catégories, plats, variantes (admin)
 │   ├── reservations-admin.html / .js # Gestion des réservations (rôles admin + salle)
 │   ├── ventes-restaurant.html / .js  # Dashboard ventes restaurant + export CSV (admin)
@@ -123,7 +124,7 @@ Module indépendant du stock surgelé ci-dessus (aucun lien avec `stock`/`comman
 ```
 categories (id, nom, ordre_affichage)
 variantes (id, id_plat → plats, nom, prix, actif)                 -- ex. poulet/bœuf
-tables_salle (id, numero, capacite, statut)
+tables_salle (id, numero, capacite, statut, forme, pos_x, pos_y)
 commandes_client (id, mode, id_table → tables_salle, statut, nom_client,
                    telephone_client, date_commande, date_prevue, total)
 commande_lignes (id, id_commande → commandes_client, id_plat → plats,
@@ -145,6 +146,10 @@ users (id, username, nom_complet, password_hash, password_salt, role, actif, dat
 ```
 
 `role` limité par `CHECK` à `admin` / `cuisine` / `salle`. Mot de passe jamais stocké en clair : haché avec `scrypt` (module `crypto` natif de Node, sans dépendance native à compiler sur l'hébergeur), sel unique par utilisateur.
+
+### Plan de salle (V1.5)
+
+`tables_salle` porte en plus `forme` (`carre` / `rond`) et une position libre `pos_x`/`pos_y` (en pixels, sur un plan de 480px de haut). Depuis l'interface **Salle**, un bouton "Éditer le plan" fait passer les tables en mode édition : elles deviennent déplaçables à la souris/au doigt (glisser-déposer, position sauvegardée automatiquement), avec des boutons pour ajouter une table carrée/ronde, renommer/changer sa capacité, ou la supprimer. Objectif : recréer visuellement la disposition réelle de la salle plutôt qu'une simple liste de tables sans rapport avec le terrain. Hors édition, cliquer une table ouvre le panneau de prise de commande, comme avant.
 
 ## Authentification
 
@@ -180,6 +185,7 @@ psql -U postgres -d mirasia -f src/db/schema.sql
 psql -U postgres -d mirasia -f src/db/migration_v1_2.sql
 psql -U postgres -d mirasia -f src/db/migration_v1_3.sql
 psql -U postgres -d mirasia -f src/db/migration_v1_4.sql
+psql -U postgres -d mirasia -f src/db/migration_v1_5.sql
 ```
 
 Optionnel : importer la carte complète du restaurant (catégories, plats, variantes) :
@@ -232,6 +238,7 @@ psql -U postgres -d mirasia_test -f src/db/schema.sql
 psql -U postgres -d mirasia_test -f src/db/migration_v1_2.sql
 psql -U postgres -d mirasia_test -f src/db/migration_v1_3.sql
 psql -U postgres -d mirasia_test -f src/db/migration_v1_4.sql
+psql -U postgres -d mirasia_test -f src/db/migration_v1_5.sql
 npm test
 ```
 
@@ -251,13 +258,15 @@ Les tests couvrent : authentification multi-rôles (accès refusé sans session,
   - Étape 4 : interface salle/serveur
   - Étape 5 : back-office admin étendu (CRUD carte, dashboard ventes restaurant, export CSV)
 - **V4** : gestion multi-utilisateurs avec rôles (admin/cuisine/salle) *(fonctionnelle)*
-  - Reste à faire pour V4 : module de caisse complet, notifications automatiques (email) sur alerte de stock, temps réel (websockets) pour l'écran cuisine au lieu du polling
+  - Reste à faire : module de caisse complet, notifications automatiques (email) sur alerte de stock, temps réel (websockets) pour l'écran cuisine au lieu du polling
+- **V5** : plan de salle personnalisable (tables carrées/rondes, position libre par glisser-déposer) *(fonctionnelle)*
 
 ## Statut
 
 ✅ V2 fonctionnelle (stock, ventes, dashboard)
 ✅ V3 fonctionnelle (carte du restaurant, commande client, cuisine, salle, réservations, ventes restaurant) — testée en local (tests automatisés + tests manuels bout-en-bout), pas encore testée en conditions réelles au restaurant
 ✅ V4 fonctionnelle (comptes staff multi-rôles admin/cuisine/salle) — testée en local (tests automatisés + tests manuels), déployée en prod (migration `migration_v1_4.sql` appliquée sur Supabase)
+✅ V5 fonctionnelle (plan de salle personnalisable) — testée en local (tests automatisés + tests manuels de l'API), l'interaction glisser-déposer elle-même n'a pas pu être testée visuellement dans cet environnement (pas de navigateur graphique) : à valider dans un vrai navigateur avant utilisation au restaurant
 ✅ Démo en ligne déployée sur Render (web service Node.js, via `render.yaml`) connecté à une base PostgreSQL Supabase — base peuplée avec la vraie carte (`seed_menu.sql`), identifiants staff de démonstration (différents des identifiants réels du restaurant) :
 - [Côté client — carte & commande](https://mirasia-gestion.onrender.com/commande.html)
 - [Côté gestion — admin](https://mirasia-gestion.onrender.com/login.html) : identifiants de démonstration disponibles sur demande

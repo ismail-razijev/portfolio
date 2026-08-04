@@ -13,8 +13,21 @@
   </header>
   <main>
     <div class="card">
-      <h2>Tables</h2>
-      <div class="tables-grille" id="tables-grille"></div>
+      <div class="plan-toolbar">
+        <h2>Plan de salle</h2>
+        <div class="plan-actions">
+          <button type="button" id="btn-toggle-edit">✏️ Éditer le plan</button>
+          <span id="plan-edition-outils" hidden>
+            <button type="button" class="small" onclick="ajouterTable('carre')">+ Table carrée</button>
+            <button type="button" class="small" onclick="ajouterTable('rond')">+ Table ronde</button>
+          </span>
+        </div>
+      </div>
+      <p class="empty" id="plan-aide" hidden>
+        Mode édition : glisse une table pour la déplacer, clique sur ✎ pour la renommer/changer sa capacité, ✕ pour la supprimer.
+      </p>
+      <div class="plan-salle" id="plan-salle"></div>
+      <p class="empty" id="empty-tables" hidden>Aucune table pour l'instant. Passe en mode édition pour en ajouter.</p>
     </div>
 
     <div class="card" id="panneau-table" hidden>

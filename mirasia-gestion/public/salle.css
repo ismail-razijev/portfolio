@@ -1,32 +1,89 @@
-.tables-grille {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-  gap: 0.8rem;
+.plan-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.6rem;
 }
 
-.table-carte {
-  border: 2px solid var(--border);
+.plan-toolbar h2 {
+  margin: 0;
+}
+
+.plan-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.plan-salle {
+  position: relative;
+  width: 100%;
+  height: 480px;
+  margin-top: 0.8rem;
+  background:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-color: var(--bg);
+  border: 1px dashed var(--border);
   border-radius: 8px;
-  padding: 0.8rem;
-  text-align: center;
-  cursor: pointer;
+  overflow: auto;
+}
+
+.plan-salle.edition {
+  cursor: default;
+}
+
+.table-forme {
+  position: absolute;
+  width: 72px;
+  height: 72px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--border);
   background: var(--card-bg);
+  cursor: pointer;
+  user-select: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
-.table-carte.libre { border-color: var(--ok); }
-.table-carte.occupee { border-color: var(--danger); }
-.table-carte.reservee { border-color: #d39e00; }
-.table-carte.selectionnee { outline: 3px solid var(--primary); }
+.table-forme.carre { border-radius: 8px; }
+.table-forme.rond { border-radius: 50%; }
 
-.table-carte .numero {
-  font-size: 1.3rem;
+.table-forme.libre { border-color: var(--ok); }
+.table-forme.occupee { border-color: var(--danger); }
+.table-forme.reservee { border-color: #d39e00; }
+.table-forme.selectionnee { outline: 3px solid var(--primary); }
+.table-forme.en-glissement { opacity: 0.7; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); z-index: 10; }
+
+.table-forme .numero {
+  font-size: 1.1rem;
   font-weight: bold;
+  line-height: 1.1;
 }
 
-.table-carte .statut-label {
-  font-size: 0.75rem;
+.table-forme .capacite-label {
+  font-size: 0.65rem;
   color: var(--text-muted);
-  text-transform: capitalize;
+}
+
+.table-forme .table-outils {
+  position: absolute;
+  top: -10px;
+  display: flex;
+  gap: 2px;
+  width: 100%;
+  justify-content: center;
+}
+
+.table-forme .table-outils button {
+  padding: 0.05rem 0.3rem;
+  font-size: 0.65rem;
+  line-height: 1.4;
+  border-radius: 4px;
 }
 
 #commandes-table ul {

@@ -2,6 +2,7 @@ let tables = [];
 let platsDisponibles = [];
 let tableSelectionneeId = null;
 let panier = [];
+let editMode = false;
 
 function formatPrix(v) {
   return Number(v).toLocaleString("fr-BE", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
@@ -10,7 +11,7 @@ function formatPrix(v) {
 async function loadTables() {
   const res = await fetch("/api/tables");
   tables = await res.json();
-  renderTables();
+  renderPlanSalle();
 }
 
 async function loadMenu() {
@@ -43,24 +44,171 @@ function onPlatChange() {
 }
 document.getElementById("select-plat").addEventListener("change", onPlatChange);
 
-function renderTables() {
-  const grille = document.getElementById("tables-grille");
-  grille.innerHTML = tables
+// --- Plan de salle : rendu, sélection, édition (V1.5) ---
+
+function renderPlanSalle() {
+  const plan = document.getElementById("plan-salle");
+  document.getElementById("empty-tables").hidden = tables.length > 0;
+  plan.classList.toggle("edition", editMode);
+
+  plan.innerHTML = tables
     .map(
-      (t) => `<div class="table-carte ${t.statut} ${t.id === tableSelectionneeId ? "selectionnee" : ""}"
-                   onclick="selectionnerTable(${t.id})">
-        <div class="numero">${t.numero}</div>
-        <div class="statut-label">${t.statut}</div>
+      (t) => `<div class="table-forme ${t.forme} ${t.statut} ${t.id === tableSelectionneeId ? "selectionnee" : ""}"
+           id="table-forme-${t.id}"
+           style="left:${t.pos_x}px; top:${t.pos_y}px">
+        ${
+          editMode
+            ? `<div class="table-outils">
+                <button type="button" class="small" onclick="editerTable(${t.id})">✎</button>
+                <button type="button" class="small danger" onclick="supprimerTable(${t.id})">✕</button>
+              </div>`
+            : ""
+        }
+        <span class="numero">${t.numero}</span>
+        <span class="capacite-label">${t.capacite} pers.</span>
       </div>`
     )
     .join("");
+
+  tables.forEach((t) => {
+    const el = document.getElementById(`table-forme-${t.id}`);
+    if (editMode) {
+      attacherDrag(el, t);
+    } else {
+      el.addEventListener("click", () => selectionnerTable(t.id));
+    }
+  });
 }
+
+function attacherDrag(el, table) {
+  const SEUIL = 5;
+
+  el.addEventListener("pointerdown", (e) => {
+    if (e.target.closest(".table-outils")) return;
+    e.preventDefault();
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const origX = table.pos_x;
+    const origY = table.pos_y;
+    let dragging = false;
+    let nx = origX;
+    let ny = origY;
+    el.setPointerCapture(e.pointerId);
+
+    function onMove(ev) {
+      const dx = ev.clientX - startX;
+      const dy = ev.clientY - startY;
+      if (!dragging && Math.hypot(dx, dy) > SEUIL) {
+        dragging = true;
+        el.classList.add("en-glissement");
+      }
+      if (dragging) {
+        const plan = document.getElementById("plan-salle");
+        const maxX = plan.clientWidth - el.offsetWidth;
+        const maxY = plan.clientHeight - el.offsetHeight;
+        nx = Math.max(0, Math.min(maxX, origX + dx));
+        ny = Math.max(0, Math.min(maxY, origY + dy));
+        el.style.left = nx + "px";
+        el.style.top = ny + "px";
+      }
+    }
+
+    async function onUp(ev) {
+      el.releasePointerCapture(ev.pointerId);
+      el.removeEventListener("pointermove", onMove);
+      el.removeEventListener("pointerup", onUp);
+      el.classList.remove("en-glissement");
+      if (dragging) {
+        table.pos_x = Math.round(nx);
+        table.pos_y = Math.round(ny);
+        await fetch(`/api/tables/${table.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ pos_x: table.pos_x, pos_y: table.pos_y }),
+        });
+      }
+    }
+
+    el.addEventListener("pointermove", onMove);
+    el.addEventListener("pointerup", onUp);
+  });
+}
+
+document.getElementById("btn-toggle-edit").addEventListener("click", () => {
+  editMode = !editMode;
+  document.getElementById("btn-toggle-edit").textContent = editMode
+    ? "✅ Terminer l'édition"
+    : "✏️ Éditer le plan";
+  document.getElementById("plan-edition-outils").hidden = !editMode;
+  document.getElementById("plan-aide").hidden = !editMode;
+  renderPlanSalle();
+});
+
+async function ajouterTable(forme) {
+  const numero = prompt("Numéro de la table :", String(tables.length + 1));
+  if (!numero) return;
+  const capaciteStr = prompt("Capacité (nombre de personnes) :", "4");
+  if (capaciteStr === null) return;
+  const capacite = parseInt(capaciteStr, 10) || 4;
+  const pos_x = 20 + (tables.length % 8) * 90;
+  const pos_y = 20 + Math.floor(tables.length / 8) * 90;
+
+  const res = await fetch("/api/tables", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ numero, capacite, forme, pos_x, pos_y }),
+  });
+  if (!res.ok) {
+    const data = await res.json();
+    alert(data.message);
+    return;
+  }
+  await loadTables();
+}
+
+async function editerTable(id) {
+  const table = tables.find((t) => t.id === id);
+  const numero = prompt("Numéro de la table :", table.numero);
+  if (numero === null) return;
+  const capaciteStr = prompt("Capacité (nombre de personnes) :", table.capacite);
+  if (capaciteStr === null) return;
+  const capacite = parseInt(capaciteStr, 10) || table.capacite;
+
+  const res = await fetch(`/api/tables/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ numero, capacite }),
+  });
+  if (!res.ok) {
+    const data = await res.json();
+    alert(data.message);
+    return;
+  }
+  await loadTables();
+}
+
+async function supprimerTable(id) {
+  if (!confirm("Supprimer cette table ?")) return;
+  const res = await fetch(`/api/tables/${id}`, { method: "DELETE" });
+  if (!res.ok) {
+    const data = await res.json();
+    alert(data.message);
+    return;
+  }
+  if (tableSelectionneeId === id) {
+    tableSelectionneeId = null;
+    document.getElementById("panneau-table").hidden = true;
+  }
+  await loadTables();
+}
+
+// --- Prise de commande sur une table sélectionnée ---
 
 async function selectionnerTable(id) {
   tableSelectionneeId = id;
   panier = [];
   renderPanierSalle();
-  renderTables();
+  renderPlanSalle();
   const table = tables.find((t) => t.id === id);
   document.getElementById("panneau-table").hidden = false;
   document.getElementById("panneau-titre").textContent = "Table " + table.numero;
