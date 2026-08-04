@@ -27,6 +27,9 @@ before(async () => {
      commandes, stock_mouvements, stock, preparations, plats, categories, cuisines
      RESTART IDENTITY CASCADE`
   );
+  // Comptes de rôle créés par les tests ci-dessous : supprimés individuellement
+  // (pas de TRUNCATE users) pour ne pas perdre le compte admin bootstrapé.
+  await pool.query(`DELETE FROM users WHERE username IN ('test-cuisine', 'test-salle')`);
 });
 
 after(async () => {
