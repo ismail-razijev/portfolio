@@ -63,7 +63,19 @@ async function charger() {
     .map((c) => commandeCarte(c, "Commande #" + c.id))
     .join("");
   document.getElementById("empty-emporter").hidden = emporter.length > 0;
+
+  document.getElementById("cuisine-refresh-status").textContent = "Actualisé à l'instant";
 }
+
+function majHorloge() {
+  document.getElementById("cuisine-clock").textContent = new Date().toLocaleTimeString("fr-BE", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+majHorloge();
+setInterval(majHorloge, 1000);
 
 charger();
 setInterval(charger, 8000);

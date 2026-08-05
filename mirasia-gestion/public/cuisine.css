@@ -1,43 +1,161 @@
-.main-large {
+/* Écran cuisine : thème sombre, pensé pour être lu de loin pendant le coup
+   de feu (grandes typos, forts contrastes). Scopé à cette page uniquement
+   via l'attribut data-page, aucun impact sur le reste de l'appli. */
+
+body[data-page="cuisine.html"] {
+  background: #17130f;
+}
+
+body[data-page="cuisine.html"] header.topbar {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  padding: 1.5rem 2rem 1.2rem;
+  border-bottom: 1px solid #2c241e;
+}
+
+body[data-page="cuisine.html"] header.topbar h1 {
+  color: #f7f2ea;
+}
+
+.cuisine-header-main {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.live-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #5fbf6f;
+  animation: mira-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes mira-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(0.8); }
+}
+
+.cuisine-header-meta {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 1.6rem;
+  font-family: var(--font-mono);
+}
+
+#cuisine-refresh-status {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8a7d73;
+}
+
+.cuisine-clock {
+  font-size: 1.6rem;
+  font-weight: 500;
+  color: #f7f2ea;
+}
+
+body[data-page="cuisine.html"] main.main-large {
   max-width: 1400px;
+}
+
+body[data-page="cuisine.html"] main.main-large h2 {
+  color: #f7f2ea;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+body[data-page="cuisine.html"] .empty {
+  color: #7a6f66;
+  border: 1px dashed #3a2f27;
+  border-radius: 14px;
 }
 
 .commandes-grille {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.1rem;
+  margin-bottom: 1.2rem;
 }
 
 .commande-carte {
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-left: 6px solid var(--primary);
-  border-radius: 8px;
-  padding: 1rem;
+  background: #211a15;
+  border: 1px solid #3a2f27;
+  border-top: 4px solid #4a3f39;
+  border-radius: 14px;
+  padding: 1.2rem;
 }
 
-.commande-carte.statut-pret { border-left-color: var(--ok); }
-.commande-carte.statut-en_preparation { border-left-color: #d39e00; }
+.commande-carte.statut-recu { border-top-color: var(--terracotta); }
+.commande-carte.statut-en_preparation { border-top-color: var(--safran); }
+.commande-carte.statut-pret { border-top-color: var(--olive); }
 
 .commande-carte h3 {
-  margin: 0 0 0.3rem 0;
-  font-size: 1.15rem;
+  margin: 0;
+  font-size: 1.55rem;
+  font-weight: 600;
+  color: #fff;
+  display: inline;
 }
 
 .commande-carte .heure {
-  color: var(--text-muted);
-  font-size: 0.8rem;
-  margin-bottom: 0.6rem;
+  display: inline-block;
+  margin-left: 0.6rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 7px;
+  background: #2c241e;
+  color: #c9bdb3;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.commande-carte.statut-recu .heure { background: var(--terracotta); color: #fff; }
+.commande-carte.statut-en_preparation .heure { background: var(--safran); color: #17130f; }
+
+/* Le statut se lit avant tout par la couleur (bordure + pastille heure) ;
+   le badge texte reste affiché en petit pour l'accessibilité (pas de
+   couleur seule). */
+.commande-carte .badge {
+  display: block;
+  width: fit-content;
+  margin-top: 0.5rem;
+  background: #2c241e;
+  color: #c9bdb3;
 }
 
 .commande-carte ul {
   list-style: none;
   padding: 0;
-  margin: 0 0 0.8rem 0;
-  font-size: 0.95rem;
+  margin: 1rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
 }
 
 .commande-carte li {
-  padding: 0.2rem 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #f7f2ea;
+  line-height: 1.3;
+}
+
+.commande-carte button {
+  width: 100%;
+  padding: 0.8rem;
+  font-size: 0.95rem;
+  background: var(--olive);
+  border-color: var(--olive);
+}
+
+.commande-carte button:hover {
+  background: #35603e;
+  border-color: #35603e;
 }

@@ -1,12 +1,23 @@
+function formatDateLongue(date) {
+  return date.toLocaleDateString("fr-BE", { weekday: "long", day: "numeric", month: "long" });
+}
+
 async function loadDashboard() {
   const res = await fetch("/api/dashboard");
   const data = await res.json();
 
-  const statsEl = document.getElementById("stats");
   const alertesStock = data.totaux.alertes_stock;
+  const sousTitre = document.getElementById("dashboard-subtitle");
+  const resumeAlertes =
+    alertesStock > 0
+      ? `${alertesStock} alerte${alertesStock > 1 ? "s" : ""} de stock à traiter`
+      : "Aucune alerte de stock";
+  sousTitre.textContent = `${formatDateLongue(new Date())} · ${resumeAlertes}`;
+
+  const statsEl = document.getElementById("stats");
   statsEl.innerHTML = `
-    <div class="stat-box"><div class="stat-icon">🍲</div><div class="value">${data.totaux.plats_actifs}</div><div class="label">Plats actifs</div></div>
     <div class="stat-box ${alertesStock > 0 ? "stat-alert" : ""}"><div class="stat-icon">⚠️</div><div class="value">${alertesStock}</div><div class="label">Alertes stock</div></div>
+    <div class="stat-box"><div class="stat-icon">🍲</div><div class="value">${data.totaux.plats_actifs}</div><div class="label">Plats actifs</div></div>
     <div class="stat-box"><div class="stat-icon">📅</div><div class="value">${data.totaux.preparations_en_attente}</div><div class="label">Préparations en attente</div></div>
   `;
 

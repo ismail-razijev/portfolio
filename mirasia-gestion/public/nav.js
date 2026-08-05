@@ -58,7 +58,10 @@ function renderSidebar(active, role) {
   }).join("");
 
   sidebar.innerHTML = `
-    <div class="sidebar-brand"><span class="icon">🍽️</span> Mirasia Gestion</div>
+    <div class="sidebar-brand">
+      <span class="sidebar-brand-title">Mirasia</span>
+      <span class="sidebar-brand-subtitle">Gestion · Verviers</span>
+    </div>
     <nav class="sidebar-nav">${sectionsHtml}</nav>
     <div class="sidebar-footer">
       <div class="sidebar-user" id="sidebar-username"></div>

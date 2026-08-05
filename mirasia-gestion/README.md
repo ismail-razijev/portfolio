@@ -261,6 +261,7 @@ Les tests couvrent : authentification multi-rôles (accès refusé sans session,
   - Reste à faire : module de caisse complet, notifications automatiques (email) sur alerte de stock, temps réel (websockets) pour l'écran cuisine au lieu du polling
 - **V5** : plan de salle personnalisable (tables carrées/rondes, position libre par glisser-déposer) *(fonctionnelle)*
 - **V6** : refonte visuelle du back-office (sidebar de navigation groupée par domaine, design épuré, titres de page explicites) *(fonctionnelle)*
+- **V7** : identité visuelle Mirasia (maquettes conçues sur claude.ai/design, importées et implémentées) — palette terracotta/safran/olive porteuse de sens, typographies Instrument Serif/Public Sans/IBM Plex Mono, sidebar sombre, écran cuisine en thème sombre plein écran, connexion en deux panneaux, plan de salle recoloré *(fonctionnelle)*
 
 ## Statut
 
@@ -268,7 +269,8 @@ Les tests couvrent : authentification multi-rôles (accès refusé sans session,
 ✅ V3 fonctionnelle (carte du restaurant, commande client, cuisine, salle, réservations, ventes restaurant) — testée en local (tests automatisés + tests manuels bout-en-bout), pas encore testée en conditions réelles au restaurant
 ✅ V4 fonctionnelle (comptes staff multi-rôles admin/cuisine/salle) — testée en local (tests automatisés + tests manuels), déployée en prod (migration `migration_v1_4.sql` appliquée sur Supabase)
 ✅ V5 fonctionnelle (plan de salle personnalisable) — testée en local (tests automatisés + tests manuels de l'API), l'interaction glisser-déposer elle-même n'a pas pu être testée visuellement dans cet environnement (pas de navigateur graphique) : à valider dans un vrai navigateur avant utilisation au restaurant
-✅ V6 fonctionnelle (refonte visuelle) — CSS/HTML/JS validés (pages servies, JS syntaxiquement correct, tests API toujours au vert), rendu visuel non vérifié dans un navigateur graphique dans cet environnement : à valider par un coup d'œil rapide avant utilisation
+✅ V6 fonctionnelle (refonte visuelle épurée) — remplacée visuellement par la V7
+✅ V7 fonctionnelle (identité visuelle Mirasia) — CSS/HTML/JS validés (pages servies, accolades CSS équilibrées, JS syntaxiquement correct, tests API toujours au vert), rendu visuel non vérifié dans un navigateur graphique dans cet environnement : à valider par Ismail avant utilisation
 ✅ Démo en ligne déployée sur Render (web service Node.js, via `render.yaml`) connecté à une base PostgreSQL Supabase — base peuplée avec la vraie carte (`seed_menu.sql`), identifiants staff de démonstration (différents des identifiants réels du restaurant) :
 - [Côté client — carte & commande](https://mirasia-gestion.onrender.com/commande.html)
 - [Côté gestion — admin](https://mirasia-gestion.onrender.com/login.html) : identifiants de démonstration disponibles sur demande

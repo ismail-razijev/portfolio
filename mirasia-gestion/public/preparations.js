@@ -37,7 +37,7 @@ function renderPreparationsTable() {
       (p) => `<tr class="${estEnRetard(p) ? "retard" : ""}">
         <td>${p.plat_nom}</td>
         <td>${p.quantite_prevue}</td>
-        <td>${formatDate(p.date_prevue)}${estEnRetard(p) ? " ⚠️ en retard" : ""}</td>
+        <td>${formatDate(p.date_prevue)}${estEnRetard(p) ? ' <span class="badge retard">En retard</span>' : ""}</td>
         <td>
           <select onchange="updateStatut(${p.id}, this.value)">
             ${STATUTS.map(
