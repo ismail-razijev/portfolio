@@ -8,11 +8,24 @@ const router = express.Router();
 // Lecture publique (délibérément) : commande.html/salle.js ont besoin de la
 // liste des tables pour laisser choisir un numéro sans exposer d'action
 // d'écriture. Gestion (POST/PATCH/DELETE) réservée au staff ci-dessous.
+//
+// La réservation jointe est celle du jour, la plus proche dans le temps :
+// utile pour afficher "Rés. 20h00 - Aliyev" directement sur le plan de
+// salle sans que l'écran ait à recouper deux listes lui-même.
 router.get("/", async (req, res) => {
   try {
-    const result = await pool.query(
-      "SELECT * FROM tables_salle ORDER BY numero"
-    );
+    const result = await pool.query(`
+      SELECT t.*, r.heure_reservation, r.nom_client AS reservation_client, r.nb_personnes AS reservation_personnes
+      FROM tables_salle t
+      LEFT JOIN LATERAL (
+        SELECT heure_reservation, nom_client, nb_personnes
+        FROM reservations
+        WHERE id_table = t.id AND date_reservation = CURRENT_DATE AND statut != 'annulee'
+        ORDER BY heure_reservation ASC
+        LIMIT 1
+      ) r ON true
+      ORDER BY t.numero
+    `);
     res.json(result.rows);
   } catch (err) {
     handleDbError(err, res);
@@ -40,6 +53,11 @@ router.post("/", requireRole("admin", "salle"), async (req, res) => {
 router.patch("/:id", requireRole("admin", "salle"), async (req, res) => {
   const { numero, capacite, statut, forme, pos_x, pos_y } = req.body;
   try {
+    // occupee_depuis suit le passage à 'occupee' automatiquement : posée à
+    // NOW() à l'entrée, effacée à la sortie, inchangée sinon. `statut` à
+    // droite du CASE désigne la valeur avant cette mise à jour (Postgres
+    // évalue le SET sur la ligne d'origine), donc pas besoin d'un aller-retour
+    // SELECT avant l'UPDATE.
     const result = await pool.query(
       `UPDATE tables_salle SET
          numero = COALESCE($1, numero),
@@ -47,7 +65,12 @@ router.patch("/:id", requireRole("admin", "salle"), async (req, res) => {
          statut = COALESCE($3, statut),
          forme = COALESCE($4, forme),
          pos_x = COALESCE($5, pos_x),
-         pos_y = COALESCE($6, pos_y)
+         pos_y = COALESCE($6, pos_y),
+         occupee_depuis = CASE
+           WHEN COALESCE($3, statut) = 'occupee' AND statut != 'occupee' THEN NOW()
+           WHEN COALESCE($3, statut) != 'occupee' THEN NULL
+           ELSE occupee_depuis
+         END
        WHERE id = $7 RETURNING *`,
       [numero, capacite, statut, forme, pos_x, pos_y, req.params.id]
     );

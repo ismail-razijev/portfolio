@@ -8,57 +8,81 @@
   <link rel="stylesheet" href="salle.css" />
 </head>
 <body data-page="salle.html" data-roles="admin,salle">
-  <header class="topbar">
-    <h1>Salle</h1>
-  </header>
-  <main>
-    <div class="card">
-      <div class="plan-toolbar">
-        <h2>Plan de salle</h2>
-        <div class="plan-actions">
-          <button type="button" id="btn-toggle-edit">✏️ Éditer le plan</button>
-          <span id="plan-edition-outils" hidden>
-            <button type="button" class="small" onclick="ajouterTable('carre')">+ Table carrée</button>
-            <button type="button" class="small" onclick="ajouterTable('rond')">+ Table ronde</button>
-          </span>
-        </div>
+  <header class="topbar salle-topbar">
+    <div>
+      <h1>Salle</h1>
+      <p class="page-subtitle" id="salle-subtitle"></p>
+    </div>
+    <div class="salle-header-actions">
+      <div class="salle-legend">
+        <span class="salle-legend-item"><span class="salle-legend-swatch libre"></span>Libre</span>
+        <span class="salle-legend-item"><span class="salle-legend-swatch occupee"></span>Occupée</span>
+        <span class="salle-legend-item"><span class="salle-legend-swatch reservee"></span>Réservée</span>
       </div>
+      <button type="button" id="btn-toggle-edit">Éditer le plan</button>
+    </div>
+  </header>
+  <main class="salle-main">
+    <div class="salle-plan-zone">
       <p class="empty" id="plan-aide" hidden>
         Mode édition : glisse une table pour la déplacer, clique sur ✎ pour la renommer/changer sa capacité, ✕ pour la supprimer.
       </p>
       <div class="plan-salle" id="plan-salle"></div>
       <p class="empty" id="empty-tables" hidden>Aucune table pour l'instant. Passe en mode édition pour en ajouter.</p>
+      <div class="plan-edition-outils" id="plan-edition-outils" hidden>
+        <button type="button" class="small" onclick="ajouterTable('rond')">+ Table ronde</button>
+        <button type="button" class="small ink" onclick="ajouterTable('carre')">+ Table carrée</button>
+      </div>
     </div>
 
-    <div class="card" id="panneau-table" hidden>
-      <h2 id="panneau-titre">Table</h2>
-      <div class="inline-form">
-        <button type="button" onclick="changerStatutTable('libre')">Libre</button>
-        <button type="button" onclick="changerStatutTable('occupee')">Occupée</button>
-        <button type="button" onclick="changerStatutTable('reservee')">Réservée</button>
+    <aside class="salle-panneau" id="panneau-table" hidden>
+      <div class="panneau-header">
+        <div class="panneau-eyebrow">Prise de commande</div>
+        <div class="panneau-titre-row">
+          <h2 id="panneau-titre">Table</h2>
+        </div>
+        <p class="panneau-meta" id="panneau-meta"></p>
+        <div class="panneau-statuts">
+          <button type="button" class="small" onclick="changerStatutTable('libre')">Libre</button>
+          <button type="button" class="small" onclick="changerStatutTable('occupee')">Occupée</button>
+          <button type="button" class="small" onclick="changerStatutTable('reservee')">Réservée</button>
+        </div>
       </div>
 
-      <h3>Commande(s) en cours</h3>
-      <div id="commandes-table"></div>
-      <p class="empty" id="empty-commandes-table" hidden>Aucune commande en cours pour cette table.</p>
+      <div class="panneau-corps">
+        <h3>Commande(s) en cours</h3>
+        <div id="commandes-table"></div>
+        <p class="empty" id="empty-commandes-table" hidden>Aucune commande en cours pour cette table.</p>
 
-      <h3>Ajouter des articles</h3>
-      <form class="inline-form" id="form-ajout">
-        <label>Plat
-          <select id="select-plat"></select>
-        </label>
-        <label id="label-variante" hidden>Variante
-          <select id="select-variante"></select>
-        </label>
-        <label>Quantité
-          <input type="number" id="input-quantite" value="1" min="1" style="width:60px" />
-        </label>
-        <button type="button" onclick="ajouterAuPanier()">Ajouter au panier</button>
-      </form>
-      <ul id="panier-salle"></ul>
-      <p class="error-msg" id="error-salle" hidden></p>
-      <button type="button" id="btn-envoyer-cuisine">Envoyer en cuisine</button>
-    </div>
+        <h3>Ajouter des articles</h3>
+        <div class="panneau-categories" id="panneau-categories"></div>
+        <form class="inline-form" id="form-ajout">
+          <label>Plat
+            <select id="select-plat"></select>
+          </label>
+          <label id="label-variante" hidden>Variante
+            <select id="select-variante"></select>
+          </label>
+          <label>Quantité
+            <input type="number" id="input-quantite" value="1" min="1" style="width:60px" />
+          </label>
+          <button type="button" onclick="ajouterAuPanier()">Ajouter au panier</button>
+        </form>
+        <ul id="panier-salle" class="panier-liste"></ul>
+        <p class="error-msg" id="error-salle" hidden></p>
+      </div>
+
+      <div class="panneau-footer">
+        <div class="panneau-total-row">
+          <span>Total</span>
+          <span id="panneau-total">0 €</span>
+        </div>
+        <div class="panneau-actions">
+          <button type="button" id="btn-envoyer-cuisine">Envoyer en cuisine</button>
+          <button type="button" class="small" id="btn-encaisser">Encaisser</button>
+        </div>
+      </div>
+    </aside>
   </main>
   <script src="guard.js"></script>
   <script src="nav.js"></script>

@@ -3,15 +3,41 @@ let platsDisponibles = [];
 let tableSelectionneeId = null;
 let panier = [];
 let editMode = false;
+let categorieActive = null;
 
 function formatPrix(v) {
   return Number(v).toLocaleString("fr-BE", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
+}
+
+function formatHeure(dateIso) {
+  return new Date(dateIso).toLocaleTimeString("fr-BE", { hour: "2-digit", minute: "2-digit" });
+}
+
+// Durée écoulée depuis occupee_depuis (posé côté serveur au changement de
+// statut, voir src/routes/tables.js), affichée directement sur le plan comme
+// dans la maquette ("42 min", "1 h 05") plutôt qu'une donnée inventée.
+function formatDuree(depuisIso) {
+  const minutes = Math.max(0, Math.round((Date.now() - new Date(depuisIso).getTime()) / 60000));
+  if (minutes < 60) return `${minutes} min`;
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return `${h} h ${String(m).padStart(2, "0")}`;
 }
 
 async function loadTables() {
   const res = await fetch("/api/tables");
   tables = await res.json();
   renderPlanSalle();
+  renderHeaderSalle();
+}
+
+function renderHeaderSalle() {
+  const occupees = tables.filter((t) => t.statut === "occupee");
+  const couverts = occupees.reduce((s, t) => s + t.capacite, 0);
+  const heure = new Date().getHours();
+  const service = heure < 15 ? "Service de midi" : "Service du soir";
+  document.getElementById("salle-subtitle").textContent =
+    `${service} · ${occupees.length} table${occupees.length > 1 ? "s" : ""} occupée${occupees.length > 1 ? "s" : ""} sur ${tables.length} · ${couverts} couvert${couverts > 1 ? "s" : ""}`;
 }
 
 async function loadMenu() {
@@ -20,8 +46,30 @@ async function loadMenu() {
   platsDisponibles = categories.flatMap((cat) =>
     cat.plats.map((p) => ({ ...p, categorie_nom: cat.nom }))
   );
+  renderCategoriesFilter();
+  renderSelectPlat();
+}
+
+function renderCategoriesFilter() {
+  const noms = [...new Set(platsDisponibles.map((p) => p.categorie_nom))];
+  const container = document.getElementById("panneau-categories");
+  const pill = (label, valeur) =>
+    `<span class="panneau-pill ${categorieActive === valeur ? "active" : ""}" onclick="filtrerCategorie(${valeur === null ? "null" : `'${valeur}'`})">${label}</span>`;
+  container.innerHTML = pill("Toutes", null) + noms.map((n) => pill(n, n)).join("");
+}
+
+function filtrerCategorie(nom) {
+  categorieActive = nom;
+  renderCategoriesFilter();
+  renderSelectPlat();
+}
+
+function renderSelectPlat() {
   const select = document.getElementById("select-plat");
-  select.innerHTML = platsDisponibles
+  const visibles = categorieActive
+    ? platsDisponibles.filter((p) => p.categorie_nom === categorieActive)
+    : platsDisponibles;
+  select.innerHTML = visibles
     .map((p) => `<option value="${p.id}">${p.categorie_nom} - ${p.nom}</option>`)
     .join("");
   onPlatChange();
@@ -44,7 +92,7 @@ function onPlatChange() {
 }
 document.getElementById("select-plat").addEventListener("change", onPlatChange);
 
-// --- Plan de salle : rendu, sélection, édition (V1.5) ---
+// --- Plan de salle : rendu, sélection, édition (V1.5), infos vivantes (V8) ---
 
 function renderPlanSalle() {
   const plan = document.getElementById("plan-salle");
@@ -52,8 +100,14 @@ function renderPlanSalle() {
   plan.classList.toggle("edition", editMode);
 
   plan.innerHTML = tables
-    .map(
-      (t) => `<div class="table-forme ${t.forme} ${t.statut} ${t.id === tableSelectionneeId ? "selectionnee" : ""}"
+    .map((t) => {
+      let infoLigne = `<span class="capacite-label">${t.capacite} pers.</span>`;
+      if (t.statut === "occupee" && t.occupee_depuis) {
+        infoLigne = `<span class="table-info">${formatDuree(t.occupee_depuis)}</span>`;
+      } else if (t.statut === "reservee" && t.heure_reservation) {
+        infoLigne = `<span class="table-info">Rés. ${t.heure_reservation.slice(0, 5)}${t.reservation_client ? " · " + t.reservation_client : ""}</span>`;
+      }
+      return `<div class="table-forme ${t.forme} ${t.statut} ${t.id === tableSelectionneeId ? "selectionnee" : ""}"
            id="table-forme-${t.id}"
            style="left:${t.pos_x}px; top:${t.pos_y}px">
         ${
@@ -65,9 +119,9 @@ function renderPlanSalle() {
             : ""
         }
         <span class="numero">${t.numero}</span>
-        <span class="capacite-label">${t.capacite} pers.</span>
-      </div>`
-    )
+        ${infoLigne}
+      </div>`;
+    })
     .join("");
 
   tables.forEach((t) => {
@@ -79,6 +133,19 @@ function renderPlanSalle() {
     }
   });
 }
+
+// Rafraîchit uniquement les durées affichées, sans re-fetch : léger, appelé
+// chaque minute pour que "42 min" reste juste pendant tout le service.
+function rafraichirDurees() {
+  if (editMode) return;
+  tables
+    .filter((t) => t.statut === "occupee" && t.occupee_depuis)
+    .forEach((t) => {
+      const el = document.querySelector(`#table-forme-${t.id} .table-info`);
+      if (el) el.textContent = formatDuree(t.occupee_depuis);
+    });
+}
+setInterval(rafraichirDurees, 60000);
 
 function attacherDrag(el, table) {
   const SEUIL = 5;
@@ -137,8 +204,8 @@ function attacherDrag(el, table) {
 document.getElementById("btn-toggle-edit").addEventListener("click", () => {
   editMode = !editMode;
   document.getElementById("btn-toggle-edit").textContent = editMode
-    ? "✅ Terminer l'édition"
-    : "✏️ Éditer le plan";
+    ? "Terminer l'édition"
+    : "Éditer le plan";
   document.getElementById("plan-edition-outils").hidden = !editMode;
   document.getElementById("plan-aide").hidden = !editMode;
   renderPlanSalle();
@@ -212,6 +279,15 @@ async function selectionnerTable(id) {
   const table = tables.find((t) => t.id === id);
   document.getElementById("panneau-table").hidden = false;
   document.getElementById("panneau-titre").textContent = "Table " + table.numero;
+
+  let meta = `${table.capacite} couverts`;
+  if (table.statut === "occupee" && table.occupee_depuis) {
+    meta += ` · ouverte à ${formatHeure(table.occupee_depuis)}`;
+  } else if (table.statut === "reservee" && table.heure_reservation) {
+    meta += ` · réservée ${table.heure_reservation.slice(0, 5)}${table.reservation_client ? " pour " + table.reservation_client : ""}`;
+  }
+  document.getElementById("panneau-meta").textContent = meta;
+
   await chargerCommandesTable();
 }
 
@@ -222,6 +298,16 @@ async function changerStatutTable(statut) {
     body: JSON.stringify({ statut }),
   });
   await loadTables();
+  const table = tables.find((t) => t.id === tableSelectionneeId);
+  if (table) {
+    let meta = `${table.capacite} couverts`;
+    if (table.statut === "occupee" && table.occupee_depuis) {
+      meta += ` · ouverte à ${formatHeure(table.occupee_depuis)}`;
+    } else if (table.statut === "reservee" && table.heure_reservation) {
+      meta += ` · réservée ${table.heure_reservation.slice(0, 5)}${table.reservation_client ? " pour " + table.reservation_client : ""}`;
+    }
+    document.getElementById("panneau-meta").textContent = meta;
+  }
 }
 
 let commandeActiveId = null;
@@ -259,6 +345,8 @@ function ajouterAuPanier() {
     plat_nom: plat.nom,
     id_variante: idVariante,
     variante_nom: variante ? variante.nom : null,
+    vegetarien: plat.vegetarien,
+    sur_commande: plat.sur_commande,
     quantite,
     prix_unitaire: variante ? variante.prix : plat.prix,
   });
@@ -268,13 +356,29 @@ function ajouterAuPanier() {
 function renderPanierSalle() {
   const liste = document.getElementById("panier-salle");
   liste.innerHTML = panier
-    .map(
-      (l, i) => `<li>
-        <span>${l.quantite} × ${l.plat_nom}${l.variante_nom ? " (" + l.variante_nom + ")" : ""}</span>
-        <span>${formatPrix(l.prix_unitaire * l.quantite)} <button class="small danger" onclick="retirerLigne(${i})">✕</button></span>
-      </li>`
-    )
+    .map((l, i) => {
+      let sousTitre = "";
+      if (l.variante_nom) {
+        sousTitre = `<div class="panier-sub">${l.variante_nom}</div>`;
+      } else if (l.sur_commande || (l.vegetarien && l.vegetarien !== "non")) {
+        const badges = [];
+        if (l.sur_commande) badges.push(`<span class="badge sur-commande">Sur commande</span>`);
+        if (l.vegetarien && l.vegetarien !== "non") badges.push(`<span class="badge vegetarien">Végétarien</span>`);
+        sousTitre = `<div class="panier-sub">${badges.join(" ")}</div>`;
+      }
+      return `<li>
+        <span class="panier-qte">${l.quantite}</span>
+        <div class="panier-detail">
+          <div class="panier-nom">${l.plat_nom}</div>
+          ${sousTitre}
+        </div>
+        <span class="panier-prix">${formatPrix(l.prix_unitaire * l.quantite)}</span>
+        <button type="button" class="small danger" onclick="retirerLigne(${i})">✕</button>
+      </li>`;
+    })
     .join("");
+  const total = panier.reduce((s, l) => s + l.prix_unitaire * l.quantite, 0);
+  document.getElementById("panneau-total").textContent = formatPrix(total);
 }
 
 function retirerLigne(i) {
@@ -325,6 +429,32 @@ document.getElementById("btn-envoyer-cuisine").addEventListener("click", async (
   renderPanierSalle();
   await chargerCommandesTable();
   await changerStatutTable("occupee");
+});
+
+// Encaisser : clôture la commande active (statut -> servi) et libère la
+// table (statut -> libre, ce qui efface occupee_depuis côté serveur). Pas de
+// paiement réel géré ici (pas de terminal/API bancaire dans ce projet) : le
+// bouton reflète la clôture du service pour cette table.
+document.getElementById("btn-encaisser").addEventListener("click", async () => {
+  const errorEl = document.getElementById("error-salle");
+  errorEl.hidden = true;
+  if (!tableSelectionneeId) return;
+  if (!commandeActiveId) {
+    errorEl.textContent = "Aucune commande en cours à encaisser pour cette table.";
+    errorEl.hidden = false;
+    return;
+  }
+  if (!confirm("Encaisser et libérer cette table ?")) return;
+  await fetch(`/api/commandes-client/${commandeActiveId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ statut: "servi" }),
+  });
+  commandeActiveId = null;
+  panier = [];
+  renderPanierSalle();
+  await chargerCommandesTable();
+  await changerStatutTable("libre");
 });
 
 (async () => {

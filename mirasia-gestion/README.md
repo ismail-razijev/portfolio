@@ -17,11 +17,11 @@ C'est aussi un projet portfolio pensé pour démontrer une gamme de compétences
 - **Ventes** : enregistrer la vente d'un plat décrémente le stock automatiquement, en priorité sur les lots les plus anciens (FIFO), via une fonction PL/pgSQL transactionnelle qui refuse la vente si le stock est insuffisant
 - **Planning de préparation** : quoi préparer, quelle quantité, pour quand, avec un statut (prévue / en cours / terminée), filtre par statut, préparations en retard mises en évidence, filtre "en retard uniquement"
 - **Statistiques** : chiffre d'affaires total, nombre de ventes, top des plats les plus vendus, chiffre d'affaires des 14 derniers jours (mini-graphiques en barres)
-- **Dashboard** : vue d'ensemble (plats actifs, alertes de stock, préparations en attente), stock sous le seuil d'alerte, préparations prévues du jour
+- **Dashboard** : ventes du jour (chiffre d'affaires, variation vs la veille, historique 10 jours), préparations à faire (répartition terminées/en cours/en retard), plats sous seuil, stock sous le seuil d'alerte, préparations du jour avec mise en évidence des retards
 - **Carte du restaurant** : catégories, plats (description, prix ou variantes poulet/bœuf, végétarien, disponibilité), import de la carte réelle
 - **Commande client** : menu public par catégorie, filtre végétarien, panier, mode sur place (numéro de table) / à emporter, "Jeudis Gourmands" sur réservation (Beshparmak et co., date calculée automatiquement)
 - **Écran cuisine** : commandes entrantes triées par arrivée, groupées par table, statut recu → en_preparation → pret → servi
-- **Interface salle** : plan de salle personnalisable (tables carrées/rondes, position libre par glisser-déposer), statut par table (libre/occupée/réservée), prise de commande, ajout d'articles à une commande en cours
+- **Interface salle** : plan de salle personnalisable (tables carrées/rondes, position libre par glisser-déposer), statut par table (libre/occupée/réservée) avec durée d'occupation réelle et réservation liée affichées directement sur le plan, prise de commande avec filtre par catégorie, panier détaillé et clôture ("Encaisser") qui libère la table
 - **Réservations de table** : demande publique, confirmation/annulation et assignation de table côté staff
 - **Ventes restaurant** : chiffre d'affaires du jour, top plats, chiffre par catégorie, export CSV pour la compta
 
@@ -50,6 +50,7 @@ mirasia-gestion/
 │   │   ├── migration_v1_3.sql   # Carte, commande client, salle, réservations
 │   │   ├── migration_v1_4.sql   # Table users (comptes staff avec rôles)
 │   │   ├── migration_v1_5.sql   # Plan de salle : forme + position libre des tables
+│   │   ├── migration_v1_6.sql   # occupee_depuis sur tables_salle (durée d'occupation réelle)
 │   │   └── bootstrapAdmin.js    # Crée le 1er compte admin (ADMIN_USERNAME/PASSWORD) si `users` est vide
 │   ├── middleware/
 │   │   └── auth.js              # requireRole(...roles) : authentifié + rôle autorisé
@@ -151,6 +152,15 @@ users (id, username, nom_complet, password_hash, password_salt, role, actif, dat
 
 `tables_salle` porte en plus `forme` (`carre` / `rond`) et une position libre `pos_x`/`pos_y` (en pixels, sur un plan de 480px de haut). Depuis l'interface **Salle**, un bouton "Éditer le plan" fait passer les tables en mode édition : elles deviennent déplaçables à la souris/au doigt (glisser-déposer, position sauvegardée automatiquement), avec des boutons pour ajouter une table carrée/ronde, renommer/changer sa capacité, ou la supprimer. Objectif : recréer visuellement la disposition réelle de la salle plutôt qu'une simple liste de tables sans rapport avec le terrain. Hors édition, cliquer une table ouvre le panneau de prise de commande, comme avant.
 
+### Dashboard analytique & salle vivante (V8)
+
+`tables_salle` porte en plus `occupee_depuis` (`TIMESTAMP`, nullable) : posée automatiquement à `NOW()` par `PATCH /api/tables/:id` dès qu'une table passe au statut `occupee`, et effacée dès qu'elle en sort. Objectif : afficher une vraie durée d'occupation ("42 min", "1 h 05") sur le plan de salle et dans le panneau de commande, sans la fabriquer côté écran. `GET /api/tables` fait aussi une jointure `LATERAL` vers la réservation du jour la plus proche pour chaque table, afin d'afficher directement "Rés. 20h00 — nom du client" sur une table réservée.
+
+`GET /api/dashboard` a été enrichi (sans rien casser côté existant : `totaux`/`stock_bas` restent identiques) avec :
+- `ventes` : chiffre d'affaires du jour, variation vs la veille, historique des 10 derniers jours (pour le mini-graphique en barres) — calculés à partir de `commandes_client`, jamais inventés
+- `preparations_stats` : répartition du jour entre terminées / en cours / en retard (`date_prevue < CURRENT_DATE AND statut != 'terminee'`)
+- `salle` : nombre de tables occupées / total, couverts (somme des capacités des tables occupées)
+
 ## Authentification
 
 Chaque membre du staff a son propre compte (table `users`), avec un rôle qui détermine ce qu'il peut voir/faire :
@@ -186,6 +196,7 @@ psql -U postgres -d mirasia -f src/db/migration_v1_2.sql
 psql -U postgres -d mirasia -f src/db/migration_v1_3.sql
 psql -U postgres -d mirasia -f src/db/migration_v1_4.sql
 psql -U postgres -d mirasia -f src/db/migration_v1_5.sql
+psql -U postgres -d mirasia -f src/db/migration_v1_6.sql
 ```
 
 Optionnel : importer la carte complète du restaurant (catégories, plats, variantes) :
@@ -239,6 +250,7 @@ psql -U postgres -d mirasia_test -f src/db/migration_v1_2.sql
 psql -U postgres -d mirasia_test -f src/db/migration_v1_3.sql
 psql -U postgres -d mirasia_test -f src/db/migration_v1_4.sql
 psql -U postgres -d mirasia_test -f src/db/migration_v1_5.sql
+psql -U postgres -d mirasia_test -f src/db/migration_v1_6.sql
 npm test
 ```
 
@@ -262,6 +274,7 @@ Les tests couvrent : authentification multi-rôles (accès refusé sans session,
 - **V5** : plan de salle personnalisable (tables carrées/rondes, position libre par glisser-déposer) *(fonctionnelle)*
 - **V6** : refonte visuelle du back-office (sidebar de navigation groupée par domaine, design épuré, titres de page explicites) *(fonctionnelle)*
 - **V7** : identité visuelle Mirasia (maquettes conçues sur claude.ai/design, importées et implémentées) — palette terracotta/safran/olive porteuse de sens, typographies Instrument Serif/Public Sans/IBM Plex Mono, sidebar sombre, écran cuisine en thème sombre plein écran, connexion en deux panneaux, plan de salle recoloré *(fonctionnelle)*
+- **V8** : dashboard analytique et salle "vivante", toujours à partir des maquettes claude.ai/design (frontend et backend cette fois) — ventes du jour avec variation et historique 10 jours, répartition des préparations du jour, plats sous seuil en un coup d'œil, durée d'occupation réelle des tables (`occupee_depuis`), réservation affichée directement sur la table concernée, prise de commande filtrable par catégorie et clôturable ("Encaisser") *(fonctionnelle)*
 
 ## Statut
 
@@ -271,6 +284,7 @@ Les tests couvrent : authentification multi-rôles (accès refusé sans session,
 ✅ V5 fonctionnelle (plan de salle personnalisable) — testée en local (tests automatisés + tests manuels de l'API), l'interaction glisser-déposer elle-même n'a pas pu être testée visuellement dans cet environnement (pas de navigateur graphique) : à valider dans un vrai navigateur avant utilisation au restaurant
 ✅ V6 fonctionnelle (refonte visuelle épurée) — remplacée visuellement par la V7
 ✅ V7 fonctionnelle (identité visuelle Mirasia) — CSS/HTML/JS validés (pages servies, accolades CSS équilibrées, JS syntaxiquement correct, tests API toujours au vert), rendu visuel non vérifié dans un navigateur graphique dans cet environnement : à valider par Ismail avant utilisation
+✅ V8 fonctionnelle (dashboard analytique, salle vivante) — migration `migration_v1_6.sql` appliquée en local et sur Supabase, tests automatisés au vert (30/30), API vérifiée manuellement (`occupee_depuis` posée/effacée au bon moment, jointure réservation testée bout en bout), rendu visuel non vérifié dans un navigateur graphique dans cet environnement : à valider par Ismail avant utilisation
 ✅ Démo en ligne déployée sur Render (web service Node.js, via `render.yaml`) connecté à une base PostgreSQL Supabase — base peuplée avec la vraie carte (`seed_menu.sql`), identifiants staff de démonstration (différents des identifiants réels du restaurant) :
 - [Côté client — carte & commande](https://mirasia-gestion.onrender.com/commande.html)
 - [Côté gestion — admin](https://mirasia-gestion.onrender.com/login.html) : identifiants de démonstration disponibles sur demande

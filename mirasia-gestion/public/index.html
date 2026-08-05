@@ -8,32 +8,71 @@
 </head>
 <body data-page="index.html" data-roles="admin">
   <header class="topbar">
-    <h1>Dashboard</h1>
+    <h1>Vue d'ensemble</h1>
     <p class="page-subtitle" id="dashboard-subtitle"></p>
   </header>
   <main>
-    <div class="stats" id="stats"></div>
+    <div class="dash-stats">
+      <div class="dash-hero">
+        <div class="dash-hero-label">Ventes du jour</div>
+        <div class="dash-hero-row">
+          <div class="dash-hero-value" id="dash-ventes-valeur">-</div>
+          <div class="dash-hero-variation" id="dash-ventes-variation"></div>
+        </div>
+        <div class="dash-sparkline" id="dash-sparkline"></div>
+      </div>
 
-    <div class="card">
-      <h2>⚠️ Stock sous le seuil d'alerte</h2>
-      <table id="table-stock-bas">
-        <thead>
-          <tr><th>Plat</th><th>Quantité</th><th>Seuil</th></tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-      <p class="empty" id="empty-stock-bas" hidden>Aucune alerte de stock.</p>
+      <div class="dash-card">
+        <div class="dash-card-label">Préparations à faire</div>
+        <div class="dash-card-row">
+          <div class="dash-card-value" id="dash-prep-valeur">-</div>
+          <div class="dash-card-sub dash-card-sub-alert" id="dash-prep-retard"></div>
+        </div>
+        <div class="dash-segbar" id="dash-prep-segbar"></div>
+        <div class="dash-seglegend" id="dash-prep-legend"></div>
+      </div>
+
+      <div class="dash-card">
+        <div class="dash-card-label">Plats sous seuil</div>
+        <div class="dash-card-row">
+          <div class="dash-card-value" id="dash-stock-valeur">-</div>
+          <div class="dash-card-sub" id="dash-stock-sub">réassort conseillé</div>
+        </div>
+        <div class="dash-pills" id="dash-stock-pills"></div>
+      </div>
     </div>
 
-    <div class="card">
-      <h2>📅 Préparations prévues aujourd'hui</h2>
-      <table id="table-preps-jour">
-        <thead>
-          <tr><th>Plat</th><th>Quantité prévue</th><th>Statut</th></tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-      <p class="empty" id="empty-preps-jour" hidden>Aucune préparation prévue aujourd'hui.</p>
+    <div class="dash-grid">
+      <div class="card dash-table-card">
+        <div class="dash-table-head">
+          <h2>Stock sous seuil d'alerte</h2>
+          <a class="dash-table-link" href="stock.html">Réapprovisionner</a>
+        </div>
+        <table id="table-stock-bas">
+          <thead>
+            <tr><th>Plat</th><th class="num">Restant</th><th class="num">Seuil</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <p class="empty" id="empty-stock-bas" hidden>Aucune alerte de stock.</p>
+      </div>
+
+      <div class="card dash-table-card">
+        <div class="dash-table-head">
+          <h2>Préparations du jour</h2>
+        </div>
+        <table id="table-preps-jour">
+          <thead>
+            <tr><th>Plat</th><th class="num">Qté</th><th>Statut</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <p class="empty" id="empty-preps-jour" hidden>Aucune préparation prévue aujourd'hui.</p>
+        <div class="dash-table-footer" id="dash-preps-footer" hidden>
+          <span id="dash-preps-footer-text"></span>
+          <a href="preparations.html" class="dash-footer-btn">Ouvrir le planning</a>
+        </div>
+      </div>
     </div>
   </main>
   <script src="guard.js"></script>
