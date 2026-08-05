@@ -3,10 +3,11 @@ async function loadDashboard() {
   const data = await res.json();
 
   const statsEl = document.getElementById("stats");
+  const alertesStock = data.totaux.alertes_stock;
   statsEl.innerHTML = `
-    <div class="stat-box"><div class="value">${data.totaux.plats_actifs}</div><div class="label">Plats actifs</div></div>
-    <div class="stat-box"><div class="value">${data.totaux.alertes_stock}</div><div class="label">Alertes stock</div></div>
-    <div class="stat-box"><div class="value">${data.totaux.preparations_en_attente}</div><div class="label">Préparations en attente</div></div>
+    <div class="stat-box"><div class="stat-icon">🍲</div><div class="value">${data.totaux.plats_actifs}</div><div class="label">Plats actifs</div></div>
+    <div class="stat-box ${alertesStock > 0 ? "stat-alert" : ""}"><div class="stat-icon">⚠️</div><div class="value">${alertesStock}</div><div class="label">Alertes stock</div></div>
+    <div class="stat-box"><div class="stat-icon">📅</div><div class="value">${data.totaux.preparations_en_attente}</div><div class="label">Préparations en attente</div></div>
   `;
 
   const stockBody = document.querySelector("#table-stock-bas tbody");

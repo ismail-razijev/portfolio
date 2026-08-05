@@ -1,28 +1,72 @@
-function renderNav(active, role) {
-  const allPages = [
-    { href: "index.html", label: "Dashboard", roles: ["admin"] },
-    { href: "plats.html", label: "Plats & cuisines", roles: ["admin"] },
-    { href: "stock.html", label: "Stock", roles: ["admin"] },
-    { href: "preparations.html", label: "Planning", roles: ["admin"] },
-    { href: "ventes.html", label: "Ventes", roles: ["admin"] },
-    { href: "statistiques.html", label: "Statistiques", roles: ["admin"] },
-    { href: "menu.html", label: "Carte", roles: ["admin"] },
-    { href: "cuisine.html", label: "Cuisine", roles: ["admin", "cuisine"] },
-    { href: "salle.html", label: "Salle", roles: ["admin", "salle"] },
-    { href: "reservations-admin.html", label: "Réservations", roles: ["admin", "salle"] },
-    { href: "ventes-restaurant.html", label: "Ventes restaurant", roles: ["admin"] },
-    { href: "users.html", label: "Comptes", roles: ["admin"] },
-  ];
-  const pages = allPages.filter((p) => p.roles.includes(role));
-  const nav = document.createElement("nav");
-  nav.innerHTML =
-    pages
-      .map(
-        (p) =>
-          `<a href="${p.href}" class="${p.href === active ? "active" : ""}">${p.label}</a>`
-      )
-      .join("") + `<a href="#" id="logout-link">Déconnexion</a>`;
-  return nav;
+// Navigation regroupée par domaine, filtrée selon le rôle connecté.
+// Objectif : quelqu'un qui découvre l'appli doit pouvoir s'y retrouver
+// rien qu'en lisant les intitulés de section (Vue d'ensemble, Stock
+// surgelé, Restaurant, Administration).
+const NAV_SECTIONS = [
+  {
+    label: "Vue d'ensemble",
+    items: [
+      { href: "index.html", label: "Dashboard", icon: "📊", roles: ["admin"] },
+      { href: "statistiques.html", label: "Statistiques", icon: "📈", roles: ["admin"] },
+    ],
+  },
+  {
+    label: "Stock surgelé",
+    items: [
+      { href: "plats.html", label: "Plats & cuisines", icon: "🍲", roles: ["admin"] },
+      { href: "stock.html", label: "Stock", icon: "📦", roles: ["admin"] },
+      { href: "preparations.html", label: "Planning", icon: "📅", roles: ["admin"] },
+      { href: "ventes.html", label: "Ventes", icon: "💰", roles: ["admin"] },
+    ],
+  },
+  {
+    label: "Restaurant",
+    items: [
+      { href: "menu.html", label: "Carte", icon: "📋", roles: ["admin"] },
+      { href: "cuisine.html", label: "Cuisine", icon: "👨‍🍳", roles: ["admin", "cuisine"] },
+      { href: "salle.html", label: "Salle", icon: "🧑‍🍳", roles: ["admin", "salle"] },
+      { href: "reservations-admin.html", label: "Réservations", icon: "📆", roles: ["admin", "salle"] },
+      { href: "ventes-restaurant.html", label: "Ventes restaurant", icon: "🧾", roles: ["admin"] },
+    ],
+  },
+  {
+    label: "Administration",
+    items: [{ href: "users.html", label: "Comptes", icon: "👥", roles: ["admin"] }],
+  },
+];
+
+const LABEL_ROLE = { admin: "Administrateur", cuisine: "Cuisine", salle: "Salle" };
+
+function renderSidebar(active, role) {
+  const sidebar = document.createElement("aside");
+  sidebar.className = "sidebar";
+
+  const sectionsHtml = NAV_SECTIONS.map((section) => {
+    const items = section.items.filter((item) => item.roles.includes(role));
+    if (items.length === 0) return "";
+    return `<div class="sidebar-section">
+      <div class="sidebar-section-label">${section.label}</div>
+      ${items
+        .map(
+          (item) =>
+            `<a href="${item.href}" class="${item.href === active ? "active" : ""}">
+              <span class="icon">${item.icon}</span>${item.label}
+            </a>`
+        )
+        .join("")}
+    </div>`;
+  }).join("");
+
+  sidebar.innerHTML = `
+    <div class="sidebar-brand"><span class="icon">🍽️</span> Mirasia Gestion</div>
+    <nav class="sidebar-nav">${sectionsHtml}</nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user" id="sidebar-username"></div>
+      <div class="sidebar-role" id="sidebar-role"></div>
+      <button type="button" class="logout" id="logout-link">Déconnexion</button>
+    </div>
+  `;
+  return sidebar;
 }
 
 async function logout() {
@@ -32,13 +76,18 @@ async function logout() {
 
 document.addEventListener("DOMContentLoaded", async () => {
   const topbar = document.querySelector("header.topbar");
-  if (topbar) {
-    const auth = await window.mirasiaAuthReady;
-    if (!auth.authenticated) return; // guard.js redirige déjà vers login.html
-    topbar.appendChild(renderNav(document.body.dataset.page, auth.role));
-    document.getElementById("logout-link").addEventListener("click", (e) => {
-      e.preventDefault();
-      logout();
-    });
-  }
+  if (!topbar) return;
+  const auth = await window.mirasiaAuthReady;
+  if (!auth.authenticated) return; // guard.js redirige déjà vers login.html
+
+  const sidebar = renderSidebar(document.body.dataset.page, auth.role);
+  document.body.prepend(sidebar);
+  document.body.classList.add("with-sidebar");
+
+  document.getElementById("sidebar-username").textContent = auth.username;
+  document.getElementById("sidebar-role").textContent = LABEL_ROLE[auth.role] || auth.role;
+  document.getElementById("logout-link").addEventListener("click", (e) => {
+    e.preventDefault();
+    logout();
+  });
 });

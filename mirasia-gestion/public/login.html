@@ -7,14 +7,20 @@
   <link rel="stylesheet" href="style.css" />
   <style>
     body { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
-    .login-card { width: 100%; max-width: 320px; }
-    .login-card form { display: flex; flex-direction: column; gap: 0.8rem; }
+    .login-card { width: 100%; max-width: 340px; text-align: center; }
+    .login-card .login-icon { font-size: 2.2rem; margin-bottom: 0.4rem; }
+    .login-card h1 { font-size: 1.25rem; margin: 0 0 0.2rem; }
+    .login-card .login-subtitle { color: var(--text-muted); font-size: 0.85rem; margin: 0 0 1.4rem; }
+    .login-card form { display: flex; flex-direction: column; gap: 0.9rem; text-align: left; }
     .login-card label { display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.85rem; color: var(--text-muted); }
+    .login-card button { margin-top: 0.2rem; }
   </style>
 </head>
 <body>
   <div class="card login-card">
-    <h2>🍽️ Mirasia Gestion</h2>
+    <div class="login-icon">🍽️</div>
+    <h1>Mirasia Gestion</h1>
+    <p class="login-subtitle">Espace staff — connecte-toi avec ton compte pour continuer</p>
     <form id="form-login">
       <label>Identifiant
         <input type="text" name="username" required autofocus />

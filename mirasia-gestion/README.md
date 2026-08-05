@@ -76,7 +76,8 @@ mirasia-gestion/
 ├── public/                       # Frontend (servi statiquement par Express)
 │   ├── login.html / login.js     # Page de connexion (redirige selon le rôle)
 │   ├── guard.js                  # Vérifie authentification + rôle autorisé pour la page (data-roles)
-│   ├── nav.js                    # Navigation filtrée par rôle + déconnexion
+│   ├── nav.js                    # Sidebar de navigation groupée par domaine, filtrée par rôle, déconnexion
+│   ├── style.css                 # Design system partagé (sidebar, cartes, tableaux, formulaires, badges)
 │   ├── index.html                # Dashboard (admin)
 │   ├── plats.html                # Gestion des plats & cuisines (admin, avec recherche/filtre)
 │   ├── stock.html                # Gestion du stock + historique des mouvements (admin)
@@ -90,8 +91,7 @@ mirasia-gestion/
 │   ├── salle.html / .js / .css    # Interface salle : plan de salle éditable + prise de commande (rôles admin + salle)
 │   ├── menu.html / .js            # Admin carte : catégories, plats, variantes (admin)
 │   ├── reservations-admin.html / .js # Gestion des réservations (rôles admin + salle)
-│   ├── ventes-restaurant.html / .js  # Dashboard ventes restaurant + export CSV (admin)
-│   └── style.css
+│   └── ventes-restaurant.html / .js  # Dashboard ventes restaurant + export CSV (admin)
 ├── tests/
 │   └── api.test.js               # Tests d'intégration (base de données dédiée)
 ├── Dockerfile
@@ -260,6 +260,7 @@ Les tests couvrent : authentification multi-rôles (accès refusé sans session,
 - **V4** : gestion multi-utilisateurs avec rôles (admin/cuisine/salle) *(fonctionnelle)*
   - Reste à faire : module de caisse complet, notifications automatiques (email) sur alerte de stock, temps réel (websockets) pour l'écran cuisine au lieu du polling
 - **V5** : plan de salle personnalisable (tables carrées/rondes, position libre par glisser-déposer) *(fonctionnelle)*
+- **V6** : refonte visuelle du back-office (sidebar de navigation groupée par domaine, design épuré, titres de page explicites) *(fonctionnelle)*
 
 ## Statut
 
@@ -267,6 +268,7 @@ Les tests couvrent : authentification multi-rôles (accès refusé sans session,
 ✅ V3 fonctionnelle (carte du restaurant, commande client, cuisine, salle, réservations, ventes restaurant) — testée en local (tests automatisés + tests manuels bout-en-bout), pas encore testée en conditions réelles au restaurant
 ✅ V4 fonctionnelle (comptes staff multi-rôles admin/cuisine/salle) — testée en local (tests automatisés + tests manuels), déployée en prod (migration `migration_v1_4.sql` appliquée sur Supabase)
 ✅ V5 fonctionnelle (plan de salle personnalisable) — testée en local (tests automatisés + tests manuels de l'API), l'interaction glisser-déposer elle-même n'a pas pu être testée visuellement dans cet environnement (pas de navigateur graphique) : à valider dans un vrai navigateur avant utilisation au restaurant
+✅ V6 fonctionnelle (refonte visuelle) — CSS/HTML/JS validés (pages servies, JS syntaxiquement correct, tests API toujours au vert), rendu visuel non vérifié dans un navigateur graphique dans cet environnement : à valider par un coup d'œil rapide avant utilisation
 ✅ Démo en ligne déployée sur Render (web service Node.js, via `render.yaml`) connecté à une base PostgreSQL Supabase — base peuplée avec la vraie carte (`seed_menu.sql`), identifiants staff de démonstration (différents des identifiants réels du restaurant) :
 - [Côté client — carte & commande](https://mirasia-gestion.onrender.com/commande.html)
 - [Côté gestion — admin](https://mirasia-gestion.onrender.com/login.html) : identifiants de démonstration disponibles sur demande
