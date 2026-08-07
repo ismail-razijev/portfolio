@@ -54,7 +54,6 @@ mirasia-gestion/
 │   │   └── bootstrapAdmin.js    # Crée le 1er compte admin (ADMIN_USERNAME/PASSWORD) si `users` est vide
 │   ├── middleware/
 │   │   └── auth.js              # requireRole(...roles) : authentifié + rôle autorisé
-│   ├── utils/password.js        # Hash/vérification de mot de passe (scrypt, module crypto natif)
 │   ├── routes/
 │   │   ├── auth.js              # Login / logout / statut de session (id, username, rôle)
 │   │   ├── users.js             # CRUD comptes staff (admin uniquement)

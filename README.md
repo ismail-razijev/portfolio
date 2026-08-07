@@ -14,7 +14,7 @@ Stack : Python, API Anthropic, Streamlit.
 🔗 [Démo en ligne](https://portfolio-7q2shyofrzputy8ltgnpmw.streamlit.app)
 
 ### [Mirasia Gestion](./mirasia-gestion) — 🚧 projet actif, en cours de développement
-Application de gestion pour le restaurant Mirasia : stock, planning de préparation, ventes (fonction PL/pgSQL transactionnelle FIFO), statistiques et dashboard, carte du restaurant, commande client, écran cuisine, interface salle et réservations, avec comptes staff multi-rôles (admin/cuisine/salle) et tests automatisés.
+Application de gestion pour le restaurant Mirasia : stock, planning de préparation, ventes (fonction PL/pgSQL transactionnelle FIFO), statistiques et dashboard analytique (ventes du jour, historique 10 jours, préparations, plats sous seuil), carte du restaurant, commande client, écran cuisine, interface salle avec plan personnalisable (tables déplaçables, durée d'occupation réelle) et réservations, comptes staff multi-rôles (admin/cuisine/salle), identité visuelle propre (maquettes conçues sur claude.ai/design) et tests automatisés.
 Stack : Node.js, Express, PostgreSQL, Docker.
 🔗 [Démo en ligne — carte & commande client](https://mirasia-gestion.onrender.com/commande.html)
 🔗 [Démo en ligne — côté gestion (admin)](https://mirasia-gestion.onrender.com/login.html) — identifiants de démonstration disponibles sur demande

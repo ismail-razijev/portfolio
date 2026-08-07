@@ -46,6 +46,20 @@ streamlit run app.py
 
 L'application s'ouvre dans le navigateur sur `http://localhost:8501`. Colle une transcription (ou uploade un fichier `.txt`), clique sur **Analyser**, et télécharge le CR généré.
 
+## Vérifications manuelles
+
+Trois scripts de vérification (pas une suite de tests automatisés avec assertions, à lancer et relire le résultat à l'œil) :
+
+- `test_api.py` : contrôle que la clé API Anthropic et la connexion fonctionnent
+- `test_cr.py` : génère un CR sur une réunion type avec décisions et actions claires
+- `test_cr_edge.py` : génère un CR sur deux cas limites (réunion sans décision formelle, transcription longue et désordonnée sans ponctuation) pour vérifier l'absence d'hallucination et la fidélité au contenu source
+
+```bash
+python test_api.py
+python test_cr.py
+python test_cr_edge.py
+```
+
 ## Roadmap
 
 - **V1** : transcription texte collée manuellement, CR généré par Claude *(fonctionnel)*
