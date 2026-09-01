@@ -1,0 +1,52 @@
+# Maintient la demo publique de Mirasia Gestion accessible.
+#
+# Pourquoi ce fichier existe : la base Supabase est sur le plan gratuit, qui met
+# un projet en pause apres 7 jours sans aucune connexion. Quand la base est en
+# pause, l'application ne peut plus la joindre, la route /api/health repond 500,
+# Render considere l'instance malade et la redemarre en boucle. La demo devient
+# alors totalement injoignable (incident du 1er septembre 2026).
+#
+# Un appel par jour suffit a remettre le compteur d'inactivite a zero.
+#
+# Effet secondaire utile : si la demo est reellement cassee, ce job echoue et
+# GitHub envoie un mail. C'est donc aussi une alerte de panne gratuite.
+
+name: Garder la demo Mirasia en vie
+
+on:
+  schedule:
+    # Tous les jours a 06:17 UTC. La minute est volontairement decalee : les
+    # taches planifiees a une heure ronde sont les plus retardees chez GitHub.
+    - cron: "17 6 * * *"
+  # Permet aussi de lancer le job a la main depuis l'onglet Actions.
+  workflow_dispatch:
+
+jobs:
+  ping:
+    name: Appeler la route de sante
+    runs-on: ubuntu-latest
+    steps:
+      - name: Reveiller la demo et verifier la base
+        run: |
+          URL="https://mirasia-gestion.onrender.com/api/health"
+
+          # L'instance gratuite de Render dort apres 15 min d'inactivite et met
+          # environ 50 secondes a se reveiller. On reessaie donc plusieurs fois
+          # avant de conclure a une panne.
+          for tentative in 1 2 3 4 5; do
+            code=$(curl -sS -o reponse.json -w "%{http_code}" --max-time 120 "$URL" || echo "000")
+            echo "Tentative $tentative : HTTP $code"
+            cat reponse.json 2>/dev/null || true
+            echo
+
+            if [ "$code" = "200" ]; then
+              echo "Demo en ligne et base joignable."
+              exit 0
+            fi
+
+            echo "Pas encore prete, nouvelle tentative dans 30 s."
+            sleep 30
+          done
+
+          echo "::error::La demo n'a pas repondu 200 apres 5 tentatives. Verifier si le projet Supabase est en pause, puis redemarrer le service sur Render."
+          exit 1
