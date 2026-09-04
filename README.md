@@ -91,4 +91,3 @@ Analyseur de comptes rendus de réunion propulsé par l'API Claude. Une transcri
 - **Email** : razijevismail@gmail.com
 - **GitHub** : [github.com/ismail-razijev](https://github.com/ismail-razijev)
 
-Disponible immédiatement pour un premier poste en IT.
