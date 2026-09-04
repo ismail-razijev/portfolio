@@ -51,6 +51,7 @@ mirasia-gestion/
 │   │   ├── migration_v1_4.sql   # Table users (comptes staff avec rôles)
 │   │   ├── migration_v1_5.sql   # Plan de salle : forme + position libre des tables
 │   │   ├── migration_v1_6.sql   # occupee_depuis sur tables_salle (durée d'occupation réelle)
+│   │   ├── migration_v1_7.sql   # fn_enregistrer_vente : refus des ventes concurrentes partielles
 │   │   └── bootstrapAdmin.js    # Crée le 1er compte admin (ADMIN_USERNAME/PASSWORD) si `users` est vide
 │   ├── middleware/
 │   │   └── auth.js              # requireRole(...roles) : authentifié + rôle autorisé
@@ -196,6 +197,7 @@ psql -U postgres -d mirasia -f src/db/migration_v1_3.sql
 psql -U postgres -d mirasia -f src/db/migration_v1_4.sql
 psql -U postgres -d mirasia -f src/db/migration_v1_5.sql
 psql -U postgres -d mirasia -f src/db/migration_v1_6.sql
+psql -U postgres -d mirasia -f src/db/migration_v1_7.sql
 ```
 
 Optionnel : importer la carte complète du restaurant (catégories, plats, variantes) :
@@ -250,6 +252,7 @@ psql -U postgres -d mirasia_test -f src/db/migration_v1_3.sql
 psql -U postgres -d mirasia_test -f src/db/migration_v1_4.sql
 psql -U postgres -d mirasia_test -f src/db/migration_v1_5.sql
 psql -U postgres -d mirasia_test -f src/db/migration_v1_6.sql
+psql -U postgres -d mirasia_test -f src/db/migration_v1_7.sql
 npm test
 ```
 
