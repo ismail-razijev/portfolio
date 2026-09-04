@@ -2,6 +2,13 @@
 // jamais sur la base réelle du restaurant. Voir README pour la mise en place.
 process.env.DB_NAME = "mirasia_test";
 process.env.NODE_ENV = "test";
+// Garde-fou indispensable : src/db/pool.js donne la priorité à DATABASE_URL sur
+// les variables DB_* ci-dessus. Si cette variable est présente dans
+// l'environnement (typiquement pour inspecter la base de production depuis un
+// poste local), les tests s'exécuteraient dessus et le TRUNCATE plus bas
+// effacerait les vraies données. On la retire donc avant tout require, pool.js
+// lisant l'environnement au moment de son chargement.
+delete process.env.DATABASE_URL;
 process.env.ADMIN_USERNAME = process.env.ADMIN_USERNAME || "test-admin";
 process.env.ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "test-password";
 process.env.SESSION_SECRET = process.env.SESSION_SECRET || "test-secret";
@@ -267,6 +274,33 @@ test("commandes-client : création publique, prix recalculé côté serveur", as
   assert.equal(res.status, 201);
   assert.equal(res.body.total, "30.00"); // 15 x 2, prix de la variante, pas celui envoyé par le client
   commandeClientId = res.body.id;
+});
+
+test("commandes-client : le suivi public ne divulgue aucune donnée personnelle", async () => {
+  // La route de suivi est ouverte a tous, et l'identifiant de commande est
+  // sequentiel : n'importe qui peut donc parcourir /1, /2, /3. Elle ne doit
+  // jamais renvoyer le nom ni le telephone du client, sans quoi le carnet
+  // d'adresses du restaurant devient lisible par tout le monde.
+  const creation = await request(app)
+    .post("/api/commandes-client")
+    .send({
+      mode: "a_emporter",
+      nom_client: "Client Temoin",
+      telephone_client: "0470 00 00 00",
+      lignes: [{ id_plat: platCarteId, id_variante: variantePouletId, quantite: 1 }],
+    });
+  assert.equal(creation.status, 201);
+
+  const suivi = await request(app).get(`/api/commandes-client/${creation.body.id}`);
+  assert.equal(suivi.status, 200);
+  assert.equal(suivi.body.statut, "recu"); // le suivi reste fonctionnel
+  assert.equal(suivi.body.nom_client, undefined);
+  assert.equal(suivi.body.telephone_client, undefined);
+
+  // Le personnel authentifie, lui, doit toujours y avoir acces pour servir le client.
+  const cotePersonnel = await agent.get("/api/commandes-client");
+  const commande = cotePersonnel.body.find((c) => c.id === creation.body.id);
+  assert.equal(commande.nom_client, "Client Temoin");
 });
 
 test("commandes-client : refuse un plat indisponible", async () => {

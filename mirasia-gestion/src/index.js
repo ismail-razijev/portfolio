@@ -55,7 +55,12 @@ app.get("/api/health", async (req, res) => {
     const result = await pool.query("SELECT NOW()");
     res.json({ status: "ok", db_time: result.rows[0].now });
   } catch (err) {
-    res.status(500).json({ status: "error", message: err.message });
+    // Route publique : le message d'erreur PostgreSQL brut renseignerait un
+    // inconnu sur l'infrastructure (hote, utilisateur, nom de base). On journalise
+    // le detail cote serveur et on ne renvoie qu'un statut. Le code 500 suffit au
+    // healthcheck de Render et au workflow keep-alive pour detecter la panne.
+    console.error("healthcheck en echec :", err);
+    res.status(500).json({ status: "error" });
   }
 });
 

@@ -42,7 +42,7 @@ Application de gestion complète pour le restaurant Mirasia, développée en sol
 - **Comptes et rôles** : comptes staff individuels, mots de passe hachés (scrypt), 3 rôles (admin, cuisine, salle) avec navigation et API filtrées
 - **Interfaces** : dashboard analytique (ventes du jour, historique 10 jours, préparations, plats sous seuil), plan de salle personnalisable avec tables déplaçables et durée d'occupation réelle, écran cuisine, carte publique, commande client, réservations
 - **Identité visuelle** propre, maquettes conçues sur claude.ai/design
-- **Qualité et déploiement** : 30 tests d'intégration automatisés (node:test + supertest), Dockerfile et docker-compose, mise en ligne sur Render
+- **Qualité et déploiement** : 31 tests d'intégration automatisés (node:test + supertest), Dockerfile et docker-compose, mise en ligne sur Render
 - **En cours** : websockets pour l'écran cuisine en temps réel, notifications automatiques sur alertes de stock, module caisse
 
 **Stack** : Node.js, Express, PostgreSQL, PL/pgSQL, Docker

@@ -6,15 +6,20 @@ function formatDateCourte(iso) {
   return new Date(iso).toLocaleDateString("fr-BE", { day: "2-digit", month: "2-digit" });
 }
 
+// Cette page ne couvre que le module stock surgele (table `commandes`).
+// Les ventes du restaurant vivent dans `commandes_client` et s'affichent dans
+// « Ventes restaurant » et sur le dashboard. Sans cette precision, une page
+// affichant 0 EUR pendant que le dashboard affiche le chiffre du jour se lit
+// comme un bug.
 async function loadStatistiques() {
   const res = await fetch("/api/statistiques");
   const data = await res.json();
 
   const statsEl = document.getElementById("stats");
   statsEl.innerHTML = `
-    <div class="stat-box"><div class="stat-icon">💶</div><div class="value">${formatEuros(data.totaux.chiffre_affaires_total)}</div><div class="label">Chiffre d'affaires total</div></div>
+    <div class="stat-box"><div class="stat-icon">💶</div><div class="value">${formatEuros(data.totaux.chiffre_affaires_total)}</div><div class="label">Chiffre d'affaires stock surgelé</div></div>
     <div class="stat-box"><div class="stat-icon">🍽️</div><div class="value">${data.totaux.plats_vendus}</div><div class="label">Plats vendus</div></div>
-    <div class="stat-box"><div class="stat-icon">🧾</div><div class="value">${data.totaux.nombre_ventes}</div><div class="label">Ventes enregistrées</div></div>
+    <div class="stat-box"><div class="stat-icon">🧾</div><div class="value">${data.totaux.nombre_ventes}</div><div class="label">Ventes de stock enregistrées</div></div>
   `;
 
   const maxVendu = Math.max(1, ...data.top_plats.map((p) => Number(p.total_vendu)));

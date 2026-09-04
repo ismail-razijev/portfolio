@@ -153,6 +153,12 @@ router.get("/export.csv", requireRole("admin"), async (req, res) => {
 });
 
 // Suivi d'une commande (public : le client vérifie le statut de sa commande).
+//
+// Cette route est volontairement ouverte, mais l'identifiant est séquentiel :
+// n'importe qui peut donc parcourir /1, /2, /3 et lire toutes les commandes.
+// On ne renvoie pour cette raison aucune donnée personnelle ici. Le nom et le
+// téléphone du client restent accessibles au personnel authentifié, via
+// GET / et l'export CSV, tous deux protégés par requireRole.
 router.get("/:id", async (req, res) => {
   try {
     const result = await pool.query(
@@ -162,7 +168,8 @@ router.get("/:id", async (req, res) => {
     if (result.rows.length === 0) {
       return res.status(404).json({ message: "Commande introuvable." });
     }
-    res.json(result.rows[0]);
+    const { nom_client, telephone_client, ...commandePublique } = result.rows[0];
+    res.json(commandePublique);
   } catch (err) {
     handleDbError(err, res);
   }
