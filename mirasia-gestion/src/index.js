@@ -2,6 +2,7 @@ require("dotenv").config();
 const path = require("path");
 const express = require("express");
 const session = require("express-session");
+const PgSession = require("connect-pg-simple")(session);
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const morgan = require("morgan");
@@ -45,8 +46,25 @@ const apiLimiter = rateLimit({
 });
 app.use("/api", apiLimiter);
 
+// Les sessions sont stockees en base, pas en memoire.
+//
+// Le magasin par defaut d'express-session garde tout dans la memoire du
+// processus. Il previent lui-meme qu'il ne convient pas a la production, pour
+// deux raisons qui se voient ici : la memoire n'est jamais liberee, et surtout
+// tout le monde est deconnecte a chaque redemarrage. Sur l'offre gratuite de
+// Render, l'instance s'endort des qu'elle n'est plus sollicitee : chaque reveil
+// vidait donc les sessions en cours.
+//
+// La table est creee automatiquement au premier demarrage (createTableIfMissing),
+// ce qui evite une migration a passer a la main sur Supabase. Les sessions
+// expirees sont purgees periodiquement par la bibliotheque.
 app.use(
   session({
+    store: new PgSession({
+      pool,
+      tableName: "session",
+      createTableIfMissing: true,
+    }),
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,

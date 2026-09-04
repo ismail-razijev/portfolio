@@ -30,7 +30,7 @@ C'est aussi un projet portfolio pensé pour démontrer une gamme de compétences
 - **Node.js + Express** : serveur et API REST
 - **PostgreSQL** : base de données relationnelle (tables, contraintes, triggers, fonctions PL/pgSQL)
 - **HTML / CSS / JavaScript** (vanilla, sans framework) : interface web
-- **express-session** : authentification par session
+- **express-session + connect-pg-simple** : authentification par session, sessions stockées en base et non en mémoire, pour qu'un redémarrage du serveur ne déconnecte pas tout le monde
 - **helmet, express-rate-limit** : durcissement de sécurité basique
 - **morgan** : logging des requêtes
 - **node:test + supertest** : tests d'intégration automatisés de l'API
