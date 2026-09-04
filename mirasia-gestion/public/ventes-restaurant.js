@@ -11,11 +11,11 @@ async function loadStatistiques() {
 
   document.getElementById("empty-top-plats").hidden = data.top_plats.length > 0;
   document.querySelector("#table-top-plats tbody").innerHTML = data.top_plats
-    .map((p) => `<tr><td>${p.plat_nom}</td><td>${p.quantite_vendue}</td></tr>`)
+    .map((p) => `<tr><td>${echapperHtml(p.plat_nom)}</td><td>${p.quantite_vendue}</td></tr>`)
     .join("");
 
   document.querySelector("#table-categories-ca tbody").innerHTML = data.chiffre_par_categorie
-    .map((c) => `<tr><td>${c.categorie_nom || "-"}</td><td>${formatPrix(c.chiffre_affaires)}</td></tr>`)
+    .map((c) => `<tr><td>${echapperHtml(c.categorie_nom || "-")}</td><td>${formatPrix(c.chiffre_affaires)}</td></tr>`)
     .join("");
 }
 

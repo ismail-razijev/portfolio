@@ -70,7 +70,7 @@ function renderSelectPlat() {
     ? platsDisponibles.filter((p) => p.categorie_nom === categorieActive)
     : platsDisponibles;
   select.innerHTML = visibles
-    .map((p) => `<option value="${p.id}">${p.categorie_nom} - ${p.nom}</option>`)
+    .map((p) => `<option value="${p.id}">${echapperHtml(p.categorie_nom)} - ${echapperHtml(p.nom)}</option>`)
     .join("");
   onPlatChange();
 }
@@ -83,7 +83,7 @@ function onPlatChange() {
   if (plat && plat.variantes.length > 0) {
     label.hidden = false;
     select.innerHTML = plat.variantes
-      .map((v) => `<option value="${v.id}">${v.nom} (${formatPrix(v.prix)})</option>`)
+      .map((v) => `<option value="${v.id}">${echapperHtml(v.nom)} (${formatPrix(v.prix)})</option>`)
       .join("");
   } else {
     label.hidden = true;
@@ -107,7 +107,7 @@ function renderPlanSalle() {
       } else if (t.statut === "reservee" && t.heure_reservation) {
         infoLigne = `<span class="table-info">Rés. ${t.heure_reservation.slice(0, 5)}${t.reservation_client ? " · " + t.reservation_client : ""}</span>`;
       }
-      return `<div class="table-forme ${t.forme} ${t.statut} ${t.id === tableSelectionneeId ? "selectionnee" : ""}"
+      return `<div class="table-forme ${echapperHtml(t.forme)} ${echapperHtml(t.statut)} ${t.id === tableSelectionneeId ? "selectionnee" : ""}"
            id="table-forme-${t.id}"
            style="left:${t.pos_x}px; top:${t.pos_y}px">
         ${
@@ -118,7 +118,7 @@ function renderPlanSalle() {
               </div>`
             : ""
         }
-        <span class="numero">${t.numero}</span>
+        <span class="numero">${echapperHtml(t.numero)}</span>
         ${infoLigne}
       </div>`;
     })
@@ -323,9 +323,9 @@ async function chargerCommandesTable() {
   container.innerHTML = deLaTable
     .map(
       (c) => `<div class="card">
-        <span class="badge ${c.statut}">${c.statut}</span> - Total : ${formatPrix(c.total)}
+        <span class="badge ${echapperHtml(c.statut)}">${echapperHtml(c.statut)}</span> - Total : ${formatPrix(c.total)}
         <ul>${c.lignes
-          .map((l) => `<li>${l.quantite} × ${l.plat_nom}${l.variante_nom ? " (" + l.variante_nom + ")" : ""}</li>`)
+          .map((l) => `<li>${l.quantite} × ${echapperHtml(l.plat_nom)}${l.variante_nom ? " (" + l.variante_nom + ")" : ""}</li>`)
           .join("")}</ul>
       </div>`
     )
@@ -359,7 +359,7 @@ function renderPanierSalle() {
     .map((l, i) => {
       let sousTitre = "";
       if (l.variante_nom) {
-        sousTitre = `<div class="panier-sub">${l.variante_nom}</div>`;
+        sousTitre = `<div class="panier-sub">${echapperHtml(l.variante_nom)}</div>`;
       } else if (l.sur_commande || (l.vegetarien && l.vegetarien !== "non")) {
         const badges = [];
         if (l.sur_commande) badges.push(`<span class="badge sur-commande">Sur commande</span>`);
@@ -369,7 +369,7 @@ function renderPanierSalle() {
       return `<li>
         <span class="panier-qte">${l.quantite}</span>
         <div class="panier-detail">
-          <div class="panier-nom">${l.plat_nom}</div>
+          <div class="panier-nom">${echapperHtml(l.plat_nom)}</div>
           ${sousTitre}
         </div>
         <span class="panier-prix">${formatPrix(l.prix_unitaire * l.quantite)}</span>

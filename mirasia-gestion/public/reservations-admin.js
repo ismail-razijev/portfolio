@@ -9,7 +9,7 @@ function tableOptions(selectedId) {
   return (
     `<option value="">-- non assignée --</option>` +
     tablesDisponibles
-      .map((t) => `<option value="${t.id}" ${t.id === selectedId ? "selected" : ""}>Table ${t.numero}</option>`)
+      .map((t) => `<option value="${t.id}" ${t.id === selectedId ? "selected" : ""}>Table ${echapperHtml(t.numero)}</option>`)
       .join("")
   );
 }

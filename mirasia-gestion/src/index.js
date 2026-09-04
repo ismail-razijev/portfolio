@@ -27,6 +27,12 @@ const reservationsRouter = require("./routes/reservations");
 
 const app = express();
 
+// Render (comme Heroku ou Fly) termine le HTTPS sur son proxy et parle ensuite
+// a l'application en HTTP. Sans cette ligne, Express croit servir du HTTP en
+// clair et refuse de poser un cookie marque `secure` : plus personne ne peut se
+// connecter. Elle est donc indissociable du `secure` configure plus bas.
+app.set("trust proxy", 1);
+
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(morgan("dev", { skip: () => process.env.NODE_ENV === "test" }));
 app.use(express.json());
@@ -44,7 +50,18 @@ app.use(
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    cookie: { maxAge: 1000 * 60 * 60 * 8 }, // 8h
+    cookie: {
+      maxAge: 1000 * 60 * 60 * 8, // 8h
+      httpOnly: true, // deja le defaut, ecrit pour que l'intention soit lisible
+      // Le cookie ne part que sur une connexion chiffree. Conditionne a
+      // l'environnement : en developpement local on sert en HTTP, un cookie
+      // `secure` ne serait jamais pose et la connexion echouerait.
+      secure: process.env.NODE_ENV === "production",
+      // Le cookie n'accompagne pas les requetes declenchees depuis un autre
+      // site, ce qui coupe les attaques CSRF les plus simples. "lax" et non
+      // "strict" pour qu'un lien externe vers l'application garde la session.
+      sameSite: "lax",
+    },
   })
 );
 

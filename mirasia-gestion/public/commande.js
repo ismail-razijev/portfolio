@@ -18,13 +18,13 @@ async function loadTables() {
   tables = await res.json();
   const select = document.getElementById("select-table");
   select.innerHTML = tables
-    .map((t) => `<option value="${t.id}">Table ${t.numero}</option>`)
+    .map((t) => `<option value="${t.id}">Table ${echapperHtml(t.numero)}</option>`)
     .join("");
 }
 
 function platPrixLabel(plat) {
   if (plat.variantes.length > 0) {
-    return plat.variantes.map((v) => `${v.nom} ${formatPrix(v.prix)}`).join(" / ");
+    return plat.variantes.map((v) => `${echapperHtml(v.nom)} ${formatPrix(v.prix)}`).join(" / ");
   }
   if (plat.prix === null) return "Prix variable";
   return formatPrix(plat.prix) + (plat.unite === "piece" ? " / pièce" : "");
@@ -44,7 +44,7 @@ function platCard(plat) {
   const selectVariante =
     plat.variantes.length > 0
       ? `<select id="variante-${plat.id}">
-          ${plat.variantes.map((v) => `<option value="${v.id}">${v.nom} (${formatPrix(v.prix)})</option>`).join("")}
+          ${plat.variantes.map((v) => `<option value="${v.id}">${echapperHtml(v.nom)} (${formatPrix(v.prix)})</option>`).join("")}
         </select>`
       : "";
 
@@ -54,9 +54,9 @@ function platCard(plat) {
       : "";
 
   return `<div class="plat-card">
-    <h3>${plat.nom}</h3>
+    <h3>${echapperHtml(plat.nom)}</h3>
     <div>${vegBadge} ${surCommandeBadge}</div>
-    <p class="description">${plat.description || ""}</p>
+    <p class="description">${echapperHtml(plat.description || "")}</p>
     <p class="prix">${platPrixLabel(plat)}</p>
     <div class="ligne-ajout">
       ${selectVariante}
@@ -75,7 +75,7 @@ function renderMenu() {
       const plats = cat.plats.filter((p) => !vegOnly || p.vegetarien !== "non");
       if (plats.length === 0) return "";
       return `<section class="categorie">
-        <h2>${cat.nom}</h2>
+        <h2>${echapperHtml(cat.nom)}</h2>
         <div class="plats-grille">${plats.map(platCard).join("")}</div>
       </section>`;
     })
@@ -140,7 +140,7 @@ function renderPanier() {
   liste.innerHTML = cart
     .map(
       (l, i) => `<li>
-        <span>${l.quantite} × ${l.plat_nom}${l.variante_nom ? " (" + l.variante_nom + ")" : ""}${l.option_vegetarien ? " 🌱" : ""}</span>
+        <span>${l.quantite} × ${echapperHtml(l.plat_nom)}${l.variante_nom ? " (" + l.variante_nom + ")" : ""}${l.option_vegetarien ? " 🌱" : ""}</span>
         <span>${formatPrix(l.prix_unitaire * l.quantite)} <button class="small danger" onclick="retirerDuPanier(${i})">✕</button></span>
       </li>`
     )

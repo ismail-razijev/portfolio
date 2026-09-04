@@ -30,10 +30,10 @@ function ligneTexte(l) {
 
 function commandeCarte(c, titre) {
   const action = PROCHAIN_STATUT[c.statut];
-  return `<div class="commande-carte statut-${c.statut}">
-    <h3>${titre}</h3>
+  return `<div class="commande-carte statut-${echapperHtml(c.statut)}">
+    <h3>${echapperHtml(titre)}</h3>
     <div class="heure">Commande ${tempsEcoule(c.date_commande)}</div>
-    <span class="badge ${c.statut}">${LABEL_STATUT[c.statut]}</span>
+    <span class="badge ${echapperHtml(c.statut)}">${LABEL_STATUT[c.statut]}</span>
     <ul>${c.lignes.map((l) => `<li>${ligneTexte(l)}</li>`).join("")}</ul>
     ${action ? `<button type="button" onclick="avancerStatut(${c.id}, '${action}')">${LABEL_ACTION[c.statut]}</button>` : ""}
   </div>`;
@@ -56,7 +56,7 @@ async function charger() {
   const emporter = commandes.filter((c) => c.mode === "a_emporter");
 
   document.getElementById("commandes-sur-place").innerHTML = surPlace
-    .map((c) => commandeCarte(c, "Table " + (c.table_numero || "?")))
+    .map((c) => commandeCarte(c, "Table " + echapperHtml(c.table_numero || "?")))
     .join("");
   document.getElementById("empty-sur-place").hidden = surPlace.length > 0;
 

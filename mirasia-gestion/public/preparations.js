@@ -3,7 +3,7 @@ async function loadPlatsSelect() {
   const plats = await res.json();
   const select = document.getElementById("select-plat");
   select.innerHTML = plats
-    .map((p) => `<option value="${p.id}">${p.nom}</option>`)
+    .map((p) => `<option value="${p.id}">${echapperHtml(p.nom)}</option>`)
     .join("");
 }
 
@@ -35,7 +35,7 @@ function renderPreparationsTable() {
   body.innerHTML = visibles
     .map(
       (p) => `<tr class="${estEnRetard(p) ? "retard" : ""}">
-        <td>${p.plat_nom}</td>
+        <td>${echapperHtml(p.plat_nom)}</td>
         <td>${p.quantite_prevue}</td>
         <td>${formatDate(p.date_prevue)}${estEnRetard(p) ? ' <span class="badge retard">En retard</span>' : ""}</td>
         <td>

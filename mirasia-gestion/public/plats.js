@@ -10,7 +10,7 @@ async function loadCuisines() {
   body.innerHTML = cuisines
     .map(
       (c) => `<tr>
-        <td>${c.nom}</td>
+        <td>${echapperHtml(c.nom)}</td>
         <td><button class="danger small" onclick="deleteCuisine(${c.id})">Supprimer</button></td>
       </tr>`
     )
@@ -20,12 +20,12 @@ async function loadCuisines() {
   const select = document.getElementById("select-cuisine");
   select.innerHTML =
     `<option value="">-- aucune --</option>` +
-    cuisines.map((c) => `<option value="${c.id}">${c.nom}</option>`).join("");
+    cuisines.map((c) => `<option value="${c.id}">${echapperHtml(c.nom)}</option>`).join("");
 
   const filtre = document.getElementById("filtre-cuisine");
   filtre.innerHTML =
     `<option value="">Toutes</option>` +
-    cuisines.map((c) => `<option value="${c.id}">${c.nom}</option>`).join("");
+    cuisines.map((c) => `<option value="${c.id}">${echapperHtml(c.nom)}</option>`).join("");
 }
 
 function filteredPlats() {
@@ -44,7 +44,7 @@ function cuisineOptions(selectedId) {
     cuisines
       .map(
         (c) =>
-          `<option value="${c.id}" ${c.id === selectedId ? "selected" : ""}>${c.nom}</option>`
+          `<option value="${c.id}" ${c.id === selectedId ? "selected" : ""}>${echapperHtml(c.nom)}</option>`
       )
       .join("")
   );
@@ -53,7 +53,7 @@ function cuisineOptions(selectedId) {
 function renderPlatRow(p) {
   if (p.id === editingPlatId) {
     return `<tr>
-      <td><input type="text" id="edit-nom-${p.id}" value="${p.nom}" /></td>
+      <td><input type="text" id="edit-nom-${p.id}" value="${echapperHtml(p.nom)}" /></td>
       <td><select id="edit-cuisine-${p.id}">${cuisineOptions(p.id_cuisine)}</select></td>
       <td><input type="number" id="edit-prix-${p.id}" step="0.01" min="0" value="${p.prix ?? ""}" style="width:80px" /></td>
       <td>${p.actif ? "Oui" : "Non"}</td>
@@ -64,8 +64,8 @@ function renderPlatRow(p) {
     </tr>`;
   }
   return `<tr>
-    <td>${p.nom}</td>
-    <td>${p.cuisine_nom || "-"}</td>
+    <td>${echapperHtml(p.nom)}</td>
+    <td>${echapperHtml(p.cuisine_nom || "-")}</td>
     <td>${p.prix !== null ? p.prix + " €" : "-"}</td>
     <td>${p.actif ? "Oui" : "Non"}</td>
     <td>

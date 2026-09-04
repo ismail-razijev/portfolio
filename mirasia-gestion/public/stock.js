@@ -3,7 +3,7 @@ async function loadPlatsSelect() {
   const plats = await res.json();
   const select = document.getElementById("select-plat");
   select.innerHTML = plats
-    .map((p) => `<option value="${p.id}">${p.nom}</option>`)
+    .map((p) => `<option value="${p.id}">${echapperHtml(p.nom)}</option>`)
     .join("");
 }
 
@@ -30,7 +30,7 @@ function renderStockTable() {
     .map((s) => {
       const alerte = s.quantite <= s.seuil_alerte;
       return `<tr class="${alerte ? "alerte" : ""}">
-        <td>${s.plat_nom}</td>
+        <td>${echapperHtml(s.plat_nom)}</td>
         <td>
           <input type="number" min="0" value="${s.quantite}" style="width:70px"
                  onchange="updateQuantite(${s.id}, this.value)" />
@@ -63,7 +63,7 @@ async function loadMouvements() {
   body.innerHTML = mouvements
     .map(
       (m) => `<tr>
-        <td>${m.plat_nom}</td>
+        <td>${echapperHtml(m.plat_nom)}</td>
         <td>${m.ancienne_quantite}</td>
         <td>${m.nouvelle_quantite}</td>
         <td>${formatDateTime(m.date_mouvement)}</td>

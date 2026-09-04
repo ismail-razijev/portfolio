@@ -1,14 +1,18 @@
 let users = [];
 let currentUserId = null;
 
-const LABEL_ROLE = { admin: "Admin", cuisine: "Cuisine", salle: "Salle" };
+// Libelles courts, pour la colonne Role du tableau. Le nom differe de celui
+// de nav.js volontairement : les deux fichiers sont charges ensemble sur
+// cette page, et deux `const` de meme nom dans la portee globale font
+// echouer tout le script au chargement.
+const LABEL_ROLE_COURT = { admin: "Admin", cuisine: "Cuisine", salle: "Salle" };
 
 function renderUserRow(u) {
   const isSelf = u.id === currentUserId;
   return `<tr>
-    <td>${u.username}</td>
-    <td>${u.nom_complet || "-"}</td>
-    <td>${LABEL_ROLE[u.role] || u.role}</td>
+    <td>${echapperHtml(u.username)}</td>
+    <td>${echapperHtml(u.nom_complet || "-")}</td>
+    <td>${echapperHtml(LABEL_ROLE_COURT[u.role] || u.role)}</td>
     <td>${u.actif ? "Oui" : "Non"}</td>
     <td>
       <button class="small" onclick="resetPassword(${u.id})">Changer le mot de passe</button>

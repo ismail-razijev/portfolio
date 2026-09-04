@@ -27,7 +27,7 @@ async function loadStatistiques() {
   topPlatsEl.innerHTML = data.top_plats
     .map(
       (p) => `<div class="bar-row">
-        <div class="bar-label">${p.plat_nom}</div>
+        <div class="bar-label">${echapperHtml(p.plat_nom)}</div>
         <div class="bar-track"><div class="bar-fill" style="width:${(p.total_vendu / maxVendu) * 100}%"></div></div>
         <div class="bar-value">${p.total_vendu} vendus</div>
       </div>`

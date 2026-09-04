@@ -79,7 +79,7 @@ function renderStockWidget(stockBas) {
     stockBas.length > 0 ? "réassort conseillé" : "Aucune alerte";
 
   const pills = document.getElementById("dash-stock-pills");
-  const noms = stockBas.slice(0, 3).map((s) => `<span class="dash-pill">${s.plat_nom}</span>`);
+  const noms = stockBas.slice(0, 3).map((s) => `<span class="dash-pill">${echapperHtml(s.plat_nom)}</span>`);
   const reste = stockBas.length - 3;
   if (reste > 0) noms.push(`<span class="dash-pill dash-pill-neutre">+${reste}</span>`);
   pills.innerHTML = noms.join("");
@@ -91,8 +91,8 @@ function renderStockTable(stockBas) {
     .map((s) => {
       const critique = s.seuil_alerte > 0 && s.quantite <= s.seuil_alerte * 0.5;
       return `<tr class="dash-row-alerte ${critique ? "critique" : "attention"}">
-        <td><div class="dash-cell-titre">${s.plat_nom}</div>${
-          s.cuisine_nom ? `<div class="dash-cell-sub">${s.cuisine_nom}</div>` : ""
+        <td><div class="dash-cell-titre">${echapperHtml(s.plat_nom)}</div>${
+          s.cuisine_nom ? `<div class="dash-cell-sub">${echapperHtml(s.cuisine_nom)}</div>` : ""
         }</td>
         <td class="num dash-cell-mono ${critique ? "critique" : "attention"}">${s.quantite}</td>
         <td class="num dash-cell-mono-muted">${s.seuil_alerte}</td>
@@ -112,7 +112,7 @@ function renderPreparationsTable(preparationsDuJour) {
       const badgeClasse = p.en_retard ? "retard" : p.statut;
       const badgeTexte = p.en_retard ? "En retard" : LABEL_STATUT_PREP[p.statut] || p.statut;
       return `<tr class="${p.en_retard ? "dash-row-retard" : ""}">
-        <td>${p.plat_nom}</td>
+        <td>${echapperHtml(p.plat_nom)}</td>
         <td class="num dash-cell-mono">${p.quantite_prevue}</td>
         <td><span class="badge ${badgeClasse}">${badgeTexte}</span></td>
       </tr>`;

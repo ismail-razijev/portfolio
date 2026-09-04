@@ -10,7 +10,7 @@ async function loadCategories() {
   document.querySelector("#table-categories tbody").innerHTML = categories
     .map(
       (c) => `<tr>
-        <td>${c.nom}</td>
+        <td>${echapperHtml(c.nom)}</td>
         <td>${c.ordre_affichage}</td>
         <td><button class="danger small" onclick="deleteCategorie(${c.id})">Supprimer</button></td>
       </tr>`
@@ -18,7 +18,7 @@ async function loadCategories() {
     .join("");
 
   const select = document.getElementById("select-categorie");
-  select.innerHTML = categories.map((c) => `<option value="${c.id}">${c.nom}</option>`).join("");
+  select.innerHTML = categories.map((c) => `<option value="${c.id}">${echapperHtml(c.nom)}</option>`).join("");
 }
 
 function categorieNom(id) {
@@ -28,7 +28,7 @@ function categorieNom(id) {
 
 function categorieOptions(selectedId) {
   return categories
-    .map((c) => `<option value="${c.id}" ${c.id === selectedId ? "selected" : ""}>${c.nom}</option>`)
+    .map((c) => `<option value="${c.id}" ${c.id === selectedId ? "selected" : ""}>${echapperHtml(c.nom)}</option>`)
     .join("");
 }
 
@@ -42,7 +42,7 @@ async function loadPlatsMenu() {
 function renderPlatRow(p) {
   if (p.id === editingPlatId) {
     return `<tr>
-      <td><input type="text" id="edit-nom-${p.id}" value="${p.nom}" /></td>
+      <td><input type="text" id="edit-nom-${p.id}" value="${echapperHtml(p.nom)}" /></td>
       <td><select id="edit-categorie-${p.id}">${categorieOptions(p.id_categorie)}</select></td>
       <td><input type="number" id="edit-prix-${p.id}" step="0.01" min="0" value="${p.prix ?? ""}" style="width:80px" /></td>
       <td>
@@ -61,7 +61,7 @@ function renderPlatRow(p) {
     </tr>`;
   }
   return `<tr>
-    <td>${p.nom}${p.sur_commande ? ' <span class="badge sur-commande">Jeudi</span>' : ""}</td>
+    <td>${echapperHtml(p.nom)}${p.sur_commande ? ' <span class="badge sur-commande">Jeudi</span>' : ""}</td>
     <td>${categorieNom(p.id_categorie)}</td>
     <td>${p.prix !== null ? p.prix + " €" : "variantes"}</td>
     <td>${p.vegetarien}</td>
@@ -71,7 +71,7 @@ function renderPlatRow(p) {
       <button class="small" onclick="startEditPlatMenu(${p.id})">Modifier</button>
       <button class="small" onclick="toggleDisponibilite(${p.id}, ${p.disponibilite})">${p.disponibilite ? "Rupture" : "Dispo"}</button>
       <button class="small" onclick="toggleActifPlat(${p.id}, ${p.actif})">${p.actif ? "Désactiver" : "Activer"}</button>
-      <button class="small" onclick="ouvrirVariantes(${p.id}, '${p.nom.replace(/'/g, "\\'")}')">Variantes</button>
+      <button class="small" onclick="ouvrirVariantes(${p.id})">Variantes</button>
       <button class="danger small" onclick="deletePlatMenu(${p.id})">Supprimer</button>
     </td>
   </tr>`;
@@ -203,10 +203,20 @@ document.getElementById("form-plat-menu").addEventListener("submit", async (e) =
 
 // --- Variantes ---
 
-async function ouvrirVariantes(idPlat, nomPlat) {
+// Le nom du plat n'est plus passe en argument depuis l'attribut onclick : il y
+// etait insere dans du JavaScript, contexte ou un echappement HTML ne protege
+// pas. On le retrouve dans la liste deja chargee en memoire, et textContent
+// l'affiche sans jamais l'interpreter.
+// Le nom du plat n'est plus transporte par l'attribut onclick : ce qui est
+// place la est interprete comme du JavaScript, et aucun echappement HTML ne
+// protege ce contexte. On le relit depuis les plats deja charges en memoire.
+async function ouvrirVariantes(idPlat) {
   variantePlatId = idPlat;
+  const plat = platsMenu.find((p) => p.id === idPlat);
   document.getElementById("carte-variantes").hidden = false;
-  document.getElementById("variantes-plat-nom").textContent = nomPlat;
+  // textContent, et non innerHTML : le navigateur traite la valeur comme du
+  // texte, quel que soit son contenu.
+  document.getElementById("variantes-plat-nom").textContent = plat ? plat.nom : "";
   await loadVariantes();
 }
 
@@ -216,7 +226,7 @@ async function loadVariantes() {
   document.querySelector("#table-variantes tbody").innerHTML = variantes
     .map(
       (v) => `<tr>
-        <td>${v.nom}</td>
+        <td>${echapperHtml(v.nom)}</td>
         <td>${v.prix} €</td>
         <td>${v.actif ? "Oui" : "Non"}</td>
         <td>

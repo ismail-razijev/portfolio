@@ -4,7 +4,7 @@ async function loadPlatsSelect() {
   const select = document.getElementById("select-plat");
   select.innerHTML = plats
     .filter((p) => p.actif)
-    .map((p) => `<option value="${p.id}">${p.nom}</option>`)
+    .map((p) => `<option value="${p.id}">${echapperHtml(p.nom)}</option>`)
     .join("");
 }
 
@@ -22,7 +22,7 @@ async function loadVentes() {
     .map((v) => {
       const total = v.prix_unitaire ? (v.quantite * v.prix_unitaire).toFixed(2) : "-";
       return `<tr>
-        <td>${v.plat_nom}</td>
+        <td>${echapperHtml(v.plat_nom)}</td>
         <td>${v.quantite}</td>
         <td>${v.prix_unitaire !== null ? v.prix_unitaire + " €" : "-"}</td>
         <td>${total !== "-" ? total + " €" : "-"}</td>
