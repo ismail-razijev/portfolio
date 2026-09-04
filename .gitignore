@@ -1,0 +1,47 @@
+# Filet de securite a la racine du portfolio.
+# Chaque sous-projet garde son propre .gitignore, plus precis.
+
+# --- Secrets & environnement ---
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.pfx
+*.p12
+secrets/
+credentials.json
+
+# --- Python ---
+venv/
+.venv/
+env/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# --- Node ---
+node_modules/
+
+# --- Build ---
+dist/
+build/
+
+# --- Logs ---
+*.log
+logs/
+npm-debug.log*
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+
+# --- Editeurs ---
+.vscode/
+.idea/
+
+# --- Fichiers temporaires ---
+*.tmp
+*.temp
+.cache/
