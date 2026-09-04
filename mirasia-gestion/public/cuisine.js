@@ -24,7 +24,8 @@ function tempsEcoule(dateCommande) {
 }
 
 function ligneTexte(l) {
-  return `${l.quantite} × ${l.plat_nom}${l.variante_nom ? " (" + l.variante_nom + ")" : ""}${l.option_vegetarien ? " 🌱" : ""}${l.commentaire ? " - " + l.commentaire : ""}`;
+  // Le commentaire vient du formulaire public de commande : il est échappé.
+  return `${l.quantite} × ${echapperHtml(l.plat_nom)}${l.variante_nom ? " (" + echapperHtml(l.variante_nom) + ")" : ""}${l.option_vegetarien ? " 🌱" : ""}${l.commentaire ? " - " + echapperHtml(l.commentaire) : ""}`;
 }
 
 function commandeCarte(c, titre) {

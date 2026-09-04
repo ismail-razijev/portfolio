@@ -1,3 +1,23 @@
+// Échappe une valeur avant de l'insérer dans du HTML construit à la main.
+//
+// Nécessaire parce que plusieurs écrans du back-office affichent des textes
+// saisis depuis les formulaires publics (nom et téléphone d'une réservation,
+// commentaire d'une commande). Sans échappement, un visiteur peut y déposer
+// du HTML qui s'exécutera plus tard dans le navigateur d'un membre du
+// personnel, donc avec sa session : c'est une XSS stockée.
+//
+// nav.js est chargé avant les scripts de page sur tous les écrans internes,
+// la fonction est donc disponible partout.
+function echapperHtml(valeur) {
+  if (valeur === null || valeur === undefined) return "";
+  return String(valeur)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 // Navigation regroupée par domaine, filtrée selon le rôle connecté.
 // Objectif : quelqu'un qui découvre l'appli doit pouvoir s'y retrouver
 // rien qu'en lisant les intitulés de section (Vue d'ensemble, Stock

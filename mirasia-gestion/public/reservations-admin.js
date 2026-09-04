@@ -23,11 +23,11 @@ async function loadReservations() {
       (r) => `<tr>
         <td>${new Date(r.date_reservation).toLocaleDateString("fr-BE")}</td>
         <td>${r.heure_reservation.slice(0, 5)}</td>
-        <td>${r.nom_client}</td>
-        <td>${r.telephone_client}</td>
+        <td>${echapperHtml(r.nom_client)}</td>
+        <td>${echapperHtml(r.telephone_client)}</td>
         <td>${r.nb_personnes}</td>
         <td><select onchange="assignerTable(${r.id}, this.value)">${tableOptions(r.id_table)}</select></td>
-        <td><span class="badge ${r.statut}">${r.statut}</span></td>
+        <td><span class="badge ${echapperHtml(r.statut)}">${echapperHtml(r.statut)}</span></td>
         <td>
           <button class="small" onclick="changerStatut(${r.id}, 'confirmee')">Confirmer</button>
           <button class="danger small" onclick="changerStatut(${r.id}, 'annulee')">Annuler</button>
