@@ -1,7 +1,7 @@
 # Ismail Razijev
 
-**Bachelier en Informatique de Gestion, option Développement d'Applications** · IPEFA de Verviers, cours du soir
-Je conçois et livre des applications complètes, avec l'IA comme levier de production.
+**Je conçois et livre des applications complètes, avec l'IA comme levier de production.**
+Bachelier en Informatique de Gestion, option Développement d'Applications · IPEFA de Verviers, cours du soir
 
 📄 [Mon CV](./cv/CV-Ismail-Razijev.pdf)
 
