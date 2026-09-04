@@ -25,7 +25,17 @@ Je m'intéresse particulièrement à l'application pratique de l'intelligence ar
 
 Application de gestion complète pour le restaurant Mirasia, développée en solo sur un vrai besoin métier : remplacer un suivi manuel du stock, des préparations, des ventes et de la salle.
 
-![Carte et commande client de Mirasia Gestion](./assets/mirasia-commande.png)
+**Tableau de bord** : ventes du jour, préparations en retard, plats sous seuil d'alerte
+![Tableau de bord de Mirasia Gestion](./assets/mirasia-dashboard.png)
+
+**Plan de salle** : tables carrées et rondes déplaçables, états libre / occupée / réservée, prise de commande directe
+![Plan de salle interactif](./assets/mirasia-salle.png)
+
+**Écran cuisine** : commandes sur place et à emporter, actualisées en continu
+![Écran cuisine](./assets/mirasia-cuisine.png)
+
+**Carte et commande client**, accessible sans compte
+![Carte et commande client](./assets/mirasia-commande.png)
 
 - **Backend et API** : Node.js / Express, API REST (15 modules de routes), authentification par session, helmet, rate-limiting, logging
 - **Base de données** : PostgreSQL (Supabase), 13 tables, 6 migrations SQL versionnées, 2 fonctions PL/pgSQL transactionnelles (ventes FIFO, commande client), 1 trigger d'historique automatique
