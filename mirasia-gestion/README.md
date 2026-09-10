@@ -238,7 +238,7 @@ docker compose up --build
 
 Cela démarre deux conteneurs : `db` (PostgreSQL, schéma initialisé automatiquement au premier démarrage via `src/db/schema.sql` et les migrations) et `app` (le serveur Node.js), reliés par un réseau Docker interne. L'application est accessible sur `http://localhost:3000`.
 
-> Configuration écrite et relue mais non testée sur cette machine (Docker n'y est pas installé) — à valider avant un déploiement.
+> Configuration écrite et relue, mais que je n'ai pas encore exécutée : Docker n'est pas installé sur mon poste. La mise en production se fait aujourd'hui sur Render, directement en Node.
 
 ## Tests automatisés
 
