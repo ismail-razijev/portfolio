@@ -3,7 +3,7 @@
 **Je conçois et livre des applications complètes, avec l'IA comme levier de production.**
 Bachelier en Informatique de Gestion, option Développement d'Applications · IPEFA de Verviers, cours du soir
 
-📄 [Mon CV](./cv/CV-Ismail-Razijev.pdf)
+[Mon CV](./cv/CV-Ismail-Razijev.pdf)
 
 ---
 
@@ -47,8 +47,8 @@ Application de gestion complète pour le restaurant Mirasia, développée en sol
 
 **Stack** : Node.js, Express, PostgreSQL, PL/pgSQL, Docker
 
-🔗 **[Démo publique, carte et commande client](https://mirasia-gestion.onrender.com/commande.html)**
-🔗 [Espace de gestion](https://mirasia-gestion.onrender.com/login.html) · identifiants de démonstration disponibles sur demande
+**[Démo publique, carte et commande client](https://mirasia-gestion.onrender.com/commande.html)**
+[Espace de gestion](https://mirasia-gestion.onrender.com/login.html) · identifiants de démonstration disponibles sur demande
 
 > Hébergée sur le plan gratuit de Render : le premier chargement peut prendre 30 à 60 secondes, le temps que le serveur se réveille.
 
@@ -80,7 +80,7 @@ Analyseur de comptes rendus de réunion propulsé par l'API Claude. Une transcri
 
 **Stack** : Python, API Anthropic, Streamlit
 
-🔗 [Démo en ligne](https://portfolio-7q2shyofrzputy8ltgnpmw.streamlit.app)
+[Démo en ligne](https://portfolio-7q2shyofrzputy8ltgnpmw.streamlit.app)
 
 > Hébergée sur Streamlit Community Cloud : l'application se met en veille après une période d'inactivité. Si un écran « Zzzz » s'affiche, un clic sur « Yes, get this app back up! » la relance en une trentaine de secondes.
 
