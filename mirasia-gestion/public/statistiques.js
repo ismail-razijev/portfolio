@@ -17,9 +17,9 @@ async function loadStatistiques() {
 
   const statsEl = document.getElementById("stats");
   statsEl.innerHTML = `
-    <div class="stat-box"><div class="stat-icon">💶</div><div class="value">${formatEuros(data.totaux.chiffre_affaires_total)}</div><div class="label">Chiffre d'affaires stock surgelé</div></div>
-    <div class="stat-box"><div class="stat-icon">🍽️</div><div class="value">${data.totaux.plats_vendus}</div><div class="label">Plats vendus</div></div>
-    <div class="stat-box"><div class="stat-icon">🧾</div><div class="value">${data.totaux.nombre_ventes}</div><div class="label">Ventes de stock enregistrées</div></div>
+    <div class="stat-box"><div class="value">${formatEuros(data.totaux.chiffre_affaires_total)}</div><div class="label">Chiffre d'affaires stock surgelé</div></div>
+    <div class="stat-box"><div class="value">${data.totaux.plats_vendus}</div><div class="label">Plats vendus</div></div>
+    <div class="stat-box"><div class="value">${data.totaux.nombre_ventes}</div><div class="label">Ventes de stock enregistrées</div></div>
   `;
 
   const maxVendu = Math.max(1, ...data.top_plats.map((p) => Number(p.total_vendu)));

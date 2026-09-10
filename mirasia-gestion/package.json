@@ -3,12 +3,15 @@
   "version": "1.0.0",
   "description": "Application de gestion (stock, planning de préparation, dashboard) pour le restaurant Mirasia.",
   "main": "src/index.js",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "start": "node src/index.js",
     "test": "node --test tests/*.test.js"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["restaurant", "gestion", "nodejs", "express", "postgresql", "plpgsql"],
+  "author": "Ismail Razijev",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {

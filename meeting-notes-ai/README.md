@@ -2,7 +2,7 @@
 
 Analyseur de comptes-rendus de réunion propulsé par l'IA. On colle une transcription brute, l'application génère un CR structuré (résumé, participants, décisions, actions à suivre) via l'API Claude.
 
-🔗 **Démo en ligne** : [portfolio-7q2shyofrzputy8ltgnpmw.streamlit.app](https://portfolio-7q2shyofrzputy8ltgnpmw.streamlit.app) (protégée par un code d'accès, disponible sur demande)
+**Démo en ligne** : [portfolio-7q2shyofrzputy8ltgnpmw.streamlit.app](https://portfolio-7q2shyofrzputy8ltgnpmw.streamlit.app) (protégée par un code d'accès, disponible sur demande)
 
 ## Pourquoi ce projet
 
@@ -27,8 +27,8 @@ Dans un rôle de chef de projet, la rédaction de CR est une tâche fréquente e
 git clone https://github.com/ismail-razijev/portfolio.git
 cd portfolio/meeting-notes-ai
 python -m venv venv
-venv\Scripts\activate      # Windows
-source venv/bin/activate   # macOS / Linux
+venv\Scripts\activate # Windows
+source venv/bin/activate # macOS / Linux
 pip install -r requirements.txt
 ```
 
@@ -68,4 +68,4 @@ python test_cr_edge.py
 
 ## Statut
 
-✅ V1 fonctionnelle
+V1 fonctionnelle

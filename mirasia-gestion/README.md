@@ -278,15 +278,29 @@ Les tests couvrent : authentification multi-rôles (accès refusé sans session,
 - **V7** : identité visuelle Mirasia (maquettes conçues sur claude.ai/design, importées et implémentées) — palette terracotta/safran/olive porteuse de sens, typographies Instrument Serif/Public Sans/IBM Plex Mono, sidebar sombre, écran cuisine en thème sombre plein écran, connexion en deux panneaux, plan de salle recoloré *(fonctionnelle)*
 - **V8** : dashboard analytique et salle "vivante", toujours à partir des maquettes claude.ai/design (frontend et backend cette fois) — ventes du jour avec variation et historique 10 jours, répartition des préparations du jour, plats sous seuil en un coup d'œil, durée d'occupation réelle des tables (`occupee_depuis`), réservation affichée directement sur la table concernée, prise de commande filtrable par catégorie et clôturable ("Encaisser") *(fonctionnelle)*
 
+- **V8.1** : audit de sécurité complet du code existant, corrections uniquement, aucune fonctionnalité ajoutée *(appliquée)*
+  - **XSS stockée corrigée** : un visiteur non authentifié pouvait déposer une réservation contenant du HTML, qui s'exécutait ensuite dans la session du personnel. 50 valeurs échappées côté front
+  - **Fuite de données personnelles corrigée** : `GET /api/commandes-client/:id` renvoyait le nom et le téléphone du client sur un identifiant séquentiel, sans authentification. Un test de non-régression garde la correction
+  - **Page Comptes réparée** : elle ne fonctionnait pas depuis sa création, `nav.js` et `users.js` déclarant chacun `const LABEL_ROLE`
+  - **Vente FIFO fiabilisée** en cas de ventes simultanées (migration `migration_v1_7.sql`)
+  - **Sessions déplacées en base** (`connect-pg-simple`) : elles ne sont plus perdues au réveil de l'instance Render
+  - **Cookie de session durci** (`secure`, `sameSite`, `trust proxy`), `/api/health` ne publie plus le message d'erreur PostgreSQL brut, et `npm test` ne peut plus tronquer la base de production
+
 ## Statut
 
-✅ V2 fonctionnelle (stock, ventes, dashboard)
-✅ V3 fonctionnelle (carte du restaurant, commande client, cuisine, salle, réservations, ventes restaurant) — testée en local (tests automatisés + tests manuels bout-en-bout), pas encore testée en conditions réelles au restaurant
-✅ V4 fonctionnelle (comptes staff multi-rôles admin/cuisine/salle) — testée en local (tests automatisés + tests manuels), déployée en prod (migration `migration_v1_4.sql` appliquée sur Supabase)
-✅ V5 fonctionnelle (plan de salle personnalisable) — testée en local (tests automatisés + tests manuels de l'API), l'interaction glisser-déposer elle-même n'a pas pu être testée visuellement dans cet environnement (pas de navigateur graphique) : à valider dans un vrai navigateur avant utilisation au restaurant
-✅ V6 fonctionnelle (refonte visuelle épurée) — remplacée visuellement par la V7
-✅ V7 fonctionnelle (identité visuelle Mirasia) — CSS/HTML/JS validés (pages servies, accolades CSS équilibrées, JS syntaxiquement correct, tests API toujours au vert), rendu visuel non vérifié dans un navigateur graphique dans cet environnement : à valider par Ismail avant utilisation
-✅ V8 fonctionnelle (dashboard analytique, salle vivante) — migration `migration_v1_6.sql` appliquée en local et sur Supabase, tests automatisés au vert (30/30), API vérifiée manuellement (`occupee_depuis` posée/effacée au bon moment, jointure réservation testée bout en bout), rendu visuel non vérifié dans un navigateur graphique dans cet environnement : à valider par Ismail avant utilisation
-✅ Démo en ligne déployée sur Render (web service Node.js, via `render.yaml`) connecté à une base PostgreSQL Supabase — base peuplée avec la vraie carte (`seed_menu.sql`), identifiants staff de démonstration (différents des identifiants réels du restaurant) :
-- [Côté client — carte & commande](https://mirasia-gestion.onrender.com/commande.html)
-- [Côté gestion — admin](https://mirasia-gestion.onrender.com/login.html) : identifiants de démonstration disponibles sur demande
+L'application est **en ligne et fonctionnelle**. Elle n'est pas encore utilisée en conditions réelles au restaurant, c'est la prochaine étape.
+
+**Ce qui est livré** : V2 à V8 (stock, ventes, dashboard, carte du restaurant, commande client, écran cuisine, interface salle, réservations, comptes staff multi-rôles, plan de salle personnalisable, identité visuelle, dashboard analytique) puis V8.1 (audit de sécurité).
+
+**Ce qui est vérifié** : 31 tests d'intégration au vert, migrations `v1_1` à `v1_7` appliquées en local et sur Supabase, interfaces contrôlées dans le navigateur (captures dans le [README du portfolio](../README.md)).
+
+**Ce qui reste à faire** : module de caisse complet, notifications par email sur alerte de stock, websockets pour l'écran cuisine à la place du polling actuel.
+
+### Démo en ligne
+
+Déployée sur Render (web service Node.js via `render.yaml`), connectée à une base PostgreSQL Supabase peuplée avec la vraie carte (`seed_menu.sql`). Les identifiants staff de démonstration sont différents de ceux utilisés au restaurant.
+
+- [Côté client, carte et commande](https://mirasia-gestion.onrender.com/commande.html) — accessible sans compte
+- [Côté gestion](https://mirasia-gestion.onrender.com/login.html) — identifiants de démonstration disponibles sur demande
+
+> Hébergée sur le plan gratuit de Render : le premier chargement réveille le serveur, comptez 30 à 60 secondes.

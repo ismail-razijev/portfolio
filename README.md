@@ -50,6 +50,8 @@ Application de gestion complète pour le restaurant Mirasia, développée en sol
 **[Démo publique, carte et commande client](https://mirasia-gestion.onrender.com/commande.html)**
 [Espace de gestion](https://mirasia-gestion.onrender.com/login.html) · identifiants de démonstration disponibles sur demande
 
+La démo publique ouvre la carte et la commande client, la seule partie accessible sans compte. Les trois autres écrans ci-dessus (tableau de bord, plan de salle, cuisine) sont derrière l'authentification.
+
 > Hébergée sur le plan gratuit de Render : le premier chargement peut prendre 30 à 60 secondes, le temps que le serveur se réveille.
 
 ---
@@ -80,7 +82,7 @@ Analyseur de comptes rendus de réunion propulsé par l'API Claude. Une transcri
 
 **Stack** : Python, API Anthropic, Streamlit
 
-[Démo en ligne](https://portfolio-7q2shyofrzputy8ltgnpmw.streamlit.app)
+[Démo en ligne](https://portfolio-7q2shyofrzputy8ltgnpmw.streamlit.app) · protégée par un code d'accès, disponible sur demande
 
 > Hébergée sur Streamlit Community Cloud : l'application se met en veille après une période d'inactivité. Si un écran « Zzzz » s'affiche, un clic sur « Yes, get this app back up! » la relance en une trentaine de secondes.
 
