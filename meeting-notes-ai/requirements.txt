@@ -1,4 +1,7 @@
-# Versions minimales testées en local et en production sur Streamlit Cloud.
-anthropic>=0.117.0
-python-dotenv>=1.2.0
-streamlit>=1.59.0
+# Versions exactes, testées en local le 16 octobre 2026 (connexion à l'API,
+# génération d'un compte rendu, démarrage de l'interface). Figées pour que
+# Streamlit Cloud installe exactement ce qui a été vérifié : avec des versions
+# minimales, un redéploiement aurait pris la dernière version parue, jamais testée.
+anthropic==1.15.0
+python-dotenv==1.2.4
+streamlit==1.66.0

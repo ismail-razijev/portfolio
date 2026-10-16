@@ -17,7 +17,7 @@ if ACCESS_CODE:
         st.session_state.authorized = False
 
     if not st.session_state.authorized:
-        st.title("📝 Meeting Notes AI")
+        st.title("Meeting Notes AI")
         code_input = st.text_input("Code d'accès", type="password")
         if code_input:
             if code_input == ACCESS_CODE:
@@ -27,7 +27,7 @@ if ACCESS_CODE:
                 st.error("Code incorrect.")
         st.stop()
 
-st.title("📝 Meeting Notes AI")
+st.title("Meeting Notes AI")
 st.caption("Colle la transcription d'une réunion, l'IA génère le compte-rendu structuré.")
 
 uploaded_file = st.file_uploader("Ou uploade un fichier .txt", type=["txt"])
