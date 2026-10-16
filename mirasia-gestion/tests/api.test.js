@@ -375,6 +375,40 @@ test("réservations : création publique, liste et confirmation réservées au s
   assert.equal(confirmation.body.statut, "confirmee");
 });
 
+test("tables : la réservation du jour n'est visible que du personnel", async () => {
+  // GET /api/tables est public, commande.html en a besoin pour lister les
+  // tables. Depuis la V8, il joint la réservation du jour : sans filtre,
+  // n'importe quel visiteur lisait le nom du client qui avait réservé chaque
+  // table, avec l'heure et le nombre de couverts.
+  const { rows } = await pool.query("SELECT CURRENT_DATE::text AS jour");
+  const creation = await request(app).post("/api/reservations").send({
+    nom_client: "Client Temoin Salle",
+    telephone_client: "0470000001",
+    date_reservation: rows[0].jour,
+    heure_reservation: "20:00",
+    nb_personnes: 2,
+  });
+  assert.equal(creation.status, 201);
+  const attribution = await agent
+    .patch(`/api/reservations/${creation.body.id}`)
+    .send({ statut: "confirmee", id_table: tableId });
+  assert.equal(attribution.status, 200);
+
+  const publique = await request(app).get("/api/tables");
+  assert.equal(publique.status, 200);
+  const tablePublique = publique.body.find((t) => t.id === tableId);
+  assert.ok(tablePublique); // la table reste listée pour commande.html
+  assert.equal(tablePublique.reservation_client, undefined);
+  assert.equal(tablePublique.heure_reservation, undefined);
+  assert.equal(tablePublique.reservation_personnes, undefined);
+
+  // Le personnel connecté garde l'information sur son plan de salle.
+  const personnel = await agent.get("/api/tables");
+  const tablePersonnel = personnel.body.find((t) => t.id === tableId);
+  assert.equal(tablePersonnel.reservation_client, "Client Temoin Salle");
+  assert.equal(tablePersonnel.reservation_personnes, 2);
+});
+
 // --- Multi-utilisateurs avec rôles (V1.4) ---
 
 let cuisineAgent;

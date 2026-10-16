@@ -12,6 +12,10 @@ const router = express.Router();
 // La réservation jointe est celle du jour, la plus proche dans le temps :
 // utile pour afficher "Rés. 20h00 - Aliyev" directement sur le plan de
 // salle sans que l'écran ait à recouper deux listes lui-même.
+//
+// Ces champs de réservation (nom du client, heure, couverts) sont des données
+// personnelles : ils ne partent que vers le personnel connecté. Un visiteur
+// n'a besoin que du numéro et de l'état des tables.
 router.get("/", async (req, res) => {
   try {
     const result = await pool.query(`
@@ -26,7 +30,13 @@ router.get("/", async (req, res) => {
       ) r ON true
       ORDER BY t.numero
     `);
-    res.json(result.rows);
+    const estPersonnel = Boolean(req.session && req.session.user);
+    if (estPersonnel) {
+      return res.json(result.rows);
+    }
+    res.json(
+      result.rows.map(({ heure_reservation, reservation_client, reservation_personnes, ...table }) => table)
+    );
   } catch (err) {
     handleDbError(err, res);
   }

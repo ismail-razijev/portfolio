@@ -285,14 +285,18 @@ Les tests couvrent : authentification multi-rôles (accès refusé sans session,
   - **Vente FIFO fiabilisée** en cas de ventes simultanées (migration `migration_v1_7.sql`)
   - **Sessions déplacées en base** (`connect-pg-simple`) : elles ne sont plus perdues au réveil de l'instance Render
   - **Cookie de session durci** (`secure`, `sameSite`, `trust proxy`), `/api/health` ne publie plus le message d'erreur PostgreSQL brut, et `npm test` ne peut plus tronquer la base de production
+- **V8.2** : second passage de sécurité, en octobre 2026, corrections uniquement *(appliquée)*
+  - **Seconde fuite de données personnelles corrigée** : `GET /api/tables`, public pour que la page de commande puisse lister les tables, joignait depuis la V8 la réservation du jour et renvoyait à n'importe quel visiteur le nom du client, l'heure et le nombre de couverts. Ces champs ne partent plus que vers le personnel connecté, un test de non-régression garde la correction
+  - **Seconde XSS corrigée** : le nom du client réservé était inséré sans échappement sur le plan de salle. Les pastilles de catégorie du panneau de commande, elles, cassaient sur un nom contenant une apostrophe. Les deux défauts ont été rejoués dans un navigateur avant et après correction
+  - Dépendances mises à jour (`proxy-addr`, `morgan`, `ip-address`), `npm audit` à zéro, et `docker-compose.yml` charge désormais la migration `v1_7`
 
 ## Statut
 
 L'application est **en ligne et fonctionnelle**. Elle n'est pas encore utilisée en conditions réelles au restaurant, c'est la prochaine étape.
 
-**Ce qui est livré** : V2 à V8 (stock, ventes, dashboard, carte du restaurant, commande client, écran cuisine, interface salle, réservations, comptes staff multi-rôles, plan de salle personnalisable, identité visuelle, dashboard analytique) puis V8.1 (audit de sécurité).
+**Ce qui est livré** : V2 à V8 (stock, ventes, dashboard, carte du restaurant, commande client, écran cuisine, interface salle, réservations, comptes staff multi-rôles, plan de salle personnalisable, identité visuelle, dashboard analytique) puis V8.1 et V8.2 (audits de sécurité).
 
-**Ce qui est vérifié** : 31 tests d'intégration au vert, migrations `v1_1` à `v1_7` appliquées en local et sur Supabase, interfaces contrôlées dans le navigateur (captures dans le [README du portfolio](../README.md)).
+**Ce qui est vérifié** : 32 tests d'intégration au vert, migrations `v1_1` à `v1_7` appliquées en local et sur Supabase, interfaces contrôlées dans le navigateur (captures dans le [README du portfolio](../README.md)).
 
 **Ce qui reste à faire** : module de caisse complet, notifications par email sur alerte de stock, websockets pour l'écran cuisine à la place du polling actuel.
 

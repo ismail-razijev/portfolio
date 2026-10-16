@@ -53,8 +53,13 @@ async function loadMenu() {
 function renderCategoriesFilter() {
   const noms = [...new Set(platsDisponibles.map((p) => p.categorie_nom))];
   const container = document.getElementById("panneau-categories");
+  // Le nom de catégorie passe par un attribut data- échappé, jamais recopié
+  // dans le JavaScript du onclick : une apostrophe ("Plats d'été") y cassait
+  // la chaîne, et n'importe quel autre caractère pouvait y injecter du code.
   const pill = (label, valeur) =>
-    `<span class="panneau-pill ${categorieActive === valeur ? "active" : ""}" onclick="filtrerCategorie(${valeur === null ? "null" : `'${valeur}'`})">${label}</span>`;
+    valeur === null
+      ? `<span class="panneau-pill ${categorieActive === null ? "active" : ""}" onclick="filtrerCategorie(null)">${echapperHtml(label)}</span>`
+      : `<span class="panneau-pill ${categorieActive === valeur ? "active" : ""}" data-categorie="${echapperHtml(valeur)}" onclick="filtrerCategorie(this.dataset.categorie)">${echapperHtml(label)}</span>`;
   container.innerHTML = pill("Toutes", null) + noms.map((n) => pill(n, n)).join("");
 }
 
@@ -105,7 +110,7 @@ function renderPlanSalle() {
       if (t.statut === "occupee" && t.occupee_depuis) {
         infoLigne = `<span class="table-info">${formatDuree(t.occupee_depuis)}</span>`;
       } else if (t.statut === "reservee" && t.heure_reservation) {
-        infoLigne = `<span class="table-info">Rés. ${t.heure_reservation.slice(0, 5)}${t.reservation_client ? " · " + t.reservation_client : ""}</span>`;
+        infoLigne = `<span class="table-info">Rés. ${t.heure_reservation.slice(0, 5)}${t.reservation_client ? " · " + echapperHtml(t.reservation_client) : ""}</span>`;
       }
       return `<div class="table-forme ${echapperHtml(t.forme)} ${echapperHtml(t.statut)} ${t.id === tableSelectionneeId ? "selectionnee" : ""}"
            id="table-forme-${t.id}"
